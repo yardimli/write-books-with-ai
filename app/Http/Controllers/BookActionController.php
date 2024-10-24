@@ -951,11 +951,17 @@ Prompt:";
 			}
 
 			foreach ($filtered_llms as &$filtered_llm) {
+				$found_rank = false;
 				foreach ($llms_with_rank as $llm_with_rank) {
 					if ($filtered_llm['id'] === $llm_with_rank['id']) {
 						$filtered_llm['score'] = $llm_with_rank['score'] ?? 0;
 						$filtered_llm['ugi'] = $llm_with_rank['ugi'] ?? 0;
+						$found_rank = true;
 					}
+				}
+				if (!$found_rank) {
+					$filtered_llm['score'] = 0;
+					$filtered_llm['ugi'] = 0;
 				}
 			}
 			// Sort $filtered_llms by score, then alphabetically for score 0
