@@ -1,0 +1,88 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+Create a story outline in the format "Story Clock" with the structure like
+
+Act Prologue:
+Chapter Prologue:
+Open with the evil that exists that the hero doesn't know about. Do not mention the hero yet.
+
+Act 1:
+Chapter 1:
+Introduce the hero and their world. Demonstrate hero’s strength and weakness. Hero’s weakness is the villain’s strength.
+
+Chapter 2:
+Something overwhelming happens to hero that upends their entire life.
+
+Chapter 3:
+Hero tries to get back to where they started, can’t get back, and stops trying.
+
+Act 2:
+Chapter 4:
+The hero doesn't know what to do with their life. They find a sidekick. Something minor compels the hero into action.
+
+Chapter 5:
+The hero makes a plan and things seem to be working well.
+
+Chapter 6:
+Hero’s plan doesn’t work and they fail. This is what the world will look like if the hero never succeeds.
+
+Act 3:
+Chapter 7:
+Hero goes on offense, but things get even worse.
+
+Chapter 8:
+Hero tries again, seems like victory.
+
+Chapter 9:
+False victory and hero loses all hope.
+
+Act 4:
+Chapter 10:
+In despair, hero has an epiphany.
+
+Chapter 11:
+Armed with a new approach, hero fights back.
+
+Chapter 12:
+Hero wins.
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "The name of the act",
+"chapters": [
+{
+"name": "The name of the chapter",
+"short_description": "A detailed description of what happens in this chapter. It should contain a beginning middle part and an end that leads to the next chapter.",
+"events": "Notable events in the chapter.",
+"people": "Description of people in the chapter.",
+"places": "Description of the places in this chapter.",
+"from_previous_chapter": "Summary of what we got from the previous chapter. N/A for first chapter.",
+"to_next_chapter": "Summary of what we will send to the next chapter. N/A for last chapter."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

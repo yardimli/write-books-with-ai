@@ -1,0 +1,58 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+Create a story outline in the format "The 3-Act Story Structure" with the structure like
+
+Act 1:
+Chapter 1 - Action:
+Start with something happening to draw the reader into the story.
+Chapter 2 - Background:
+Provide context for readers to understand how the characters came to the current situation
+Chapter 3 - Conflict:
+The characters must want something they don’t have and work to achieve it (sometimes against each other)
+Chapter 4 - Development 1:
+Describing the characters’ struggles to get what they want.
+Chapter 5 - Development 2:
+Each time it appears they have the goal within reach, give them something more difficult to overcome until they reach the climax.
+Chapter 6 - End:
+What happens after they reach their goal. In a romance, the hero and heroine realize their “happily-ever-after”. In a mystery or thriller, all the loose ends are tied up. In a literary story, the ending may be rather ambiguous.
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "The name of the act",
+"chapters": [
+{
+"name": "The name of the chapter",
+"short_description": "A detailed description of what happens in this chapter. It should contain a beginning middle part and an end that leads to the next chapter.",
+"events": "Notable events in the chapter.",
+"people": "Description of people in the chapter.",
+"places": "Description of the places in this chapter.",
+"from_previous_chapter": "Summary of what we got from the previous chapter. N/A for first chapter.",
+"to_next_chapter": "Summary of what we will send to the next chapter. N/A for last chapter."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

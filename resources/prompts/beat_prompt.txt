@@ -1,0 +1,47 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+Character Profiles:
+##character_profiles##
+genre is ##genre##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+
+
+What has happened so far:
+##previous_chapter##
+
+This Chapter:
+##act##
+##chapter##
+##description##
+Events: ##events##
+People: ##people##
+Places: ##places##
+
+Write ##beats_per_chapter## beats with short and long title to fill in this chapter.
+Language is: ##language##.
+
+The first beat should be a continuation from the end of the previous chapter.
+The last beat should be written such that it leads to the next chapter without giving away too much information.
+
+The next chapter will start with
+##next_chapter##
+
+Output should be in JSON format as follows:
+{
+"beats": [
+##beats_per_chapter_list##
+]
+}
+
+Each beat will only have the description.
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

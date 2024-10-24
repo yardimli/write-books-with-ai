@@ -1,0 +1,88 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+"Hikaye Saati" formatında aşağıdaki yapıya benzer bir hikaye taslağı oluşturun
+
+Prolog Perdesi:
+Prolog Bölümü:
+Kahramanın henüz bilmediği mevcut kötülükle açın. Henüz kahramandan bahsetmeyin.
+
+1. Perde:
+1. Bölüm:
+Kahramanı ve dünyasını tanıtın. Kahramanın güçlü ve zayıf yönlerini gösterin. Kahramanın zayıflığı kötü adamın güçlü yanıdır.
+
+2. Bölüm:
+Kahramanın başına, tüm hayatını alt üst eden ezici bir şey gelir.
+
+3. Bölüm:
+Kahraman başladığı yere dönmeye çalışır, dönemez ve denemekten vazgeçer.
+
+2. Perde:
+4. Bölüm:
+Kahraman hayatıyla ne yapacağını bilmez. Bir yardımcı bulur. Küçük bir şey kahramanı harekete geçmeye zorlar.
+
+5. Bölüm:
+Kahraman bir plan yapar ve işler yolunda gidiyor gibi görünür.
+
+6. Bölüm:
+Kahramanın planı işe yaramaz ve başarısız olur. Eğer kahraman asla başarılı olamazsa dünya böyle görünecektir.
+
+3. Perde:
+7. Bölüm:
+Kahraman saldırıya geçer, ancak işler daha da kötüleşir.
+
+8. Bölüm:
+Kahraman tekrar dener, zafer gibi görünür.
+
+9. Bölüm:
+Sahte zafer ve kahraman tüm umudunu kaybeder.
+
+4. Perde:
+10. Bölüm:
+Umutsuzluk içinde, kahraman bir aydınlanma yaşar.
+
+11. Bölüm:
+Yeni bir yaklaşımla donanmış kahraman karşı koyar.
+
+12. Bölüm:
+Kahraman kazanır.
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "Perdenin adı",
+"chapters": [
+{
+"name": "Bölümün adı",
+"short_description": "Bu bölümde neler olduğuna dair detaylı bir açıklama. Bir başlangıç, orta kısım ve bir sonraki bölüme geçiş sağlayan bir son içermelidir.",
+"events": "Bölümdeki önemli olaylar.",
+"people": "Bölümdeki kişilerin açıklaması.",
+"places": "Bu bölümdeki yerlerin açıklaması.",
+"from_previous_chapter": "Önceki bölümden ne aldığımızın özeti. İlk bölüm için N/A.",
+"to_next_chapter": "Bir sonraki bölüme ne göndereceğimizin özeti. Son bölüm için N/A."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

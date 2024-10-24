@@ -1,0 +1,35 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+Character Profiles:
+##character_profiles##
+genre is ##genre##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+
+This Chapter:
+##act##
+##chapter##
+##description##
+Events: ##events##
+People: ##people##
+Places: ##places##
+
+Codex:
+##codex##
+
+Previous Beat Summaries:
+##previous_beat_summaries##
+
+Current Beat:
+##current_beat##
+
+Next Beat:
+##next_beat##
+
+The text should be detailed and engaging, bringing the scene to life while advancing the story. It should finish such that the next beat can continue the story, don't include the resolution of the scene in this beat. Only output the text for the current beat without any additional information.
+
+Write the full text for the current beat, continue from the context bellow.
+
+##last_beat_full_text##

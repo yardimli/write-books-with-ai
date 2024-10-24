@@ -1,0 +1,13 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+
+Beat Text: ##beat_text##
+
+Existing Lore:
+##previous_codex_part##
+
+Go over the Beat Text and update or add to the existing Lore with the new information. Only add Lore, don't add character, location or object details. Only add content that adds value to the story. Do not add filler content. If content has not changed, copy from the Existing Lore. Keep in mind that the Existing Lore will be discarded so this Lore Book needs everything from the old one.
+
+Lore:

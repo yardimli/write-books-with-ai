@@ -1,0 +1,34 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+Character Profiles:
+##character_profiles##
+genre is ##genre##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+
+This Chapter:
+##act##
+##chapter##
+##description##
+Events: ##events##
+People: ##people##
+Places: ##places##
+
+Codex:
+##codex##
+
+Previous Beat Summaries:
+##previous_beat_summaries##
+
+Last Beat Full Text:
+##last_beat_full_text##
+
+Current Beat:
+##current_beat##
+
+Next Beat:
+##next_beat##
+
+Write the short description for the current beat, continue from the context of the previous and last beats. The text should be a summary of whats going to happen in this beat. It should finish such that the next beat can continue the story, don't include the resolution of the scene in this beat. Only output the text for the current beat without any additional information. If current beat already has text in it then try different variations of the text and also follow any instructions given in the prompt.

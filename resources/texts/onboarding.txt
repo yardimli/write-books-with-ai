@@ -1,0 +1,81 @@
+Start Your FICTION•FUSION Journey Today!
+
+We appreciate your decision to join the FICTION•FUSION family.
+
+CREATING AN ACCOUNT:
+
+1. Click on Register
+2a. Enter your username, email, and password then confirm your password, click on accept terms and conditions and click on "Create Account".
+2b. Click On "Sign In With Google" and on the popup that follows click on "Allow" to allow FICTION•FUSION to access your google account.
+3. Verify your email address by clicking on the link sent to your email address, If you signed up with google, you can skip this step.
+4. You will be directed to the "Account Settings" page.
+
+
+ACCOUNT SETTINGS:
+
+ 5. You can go the "Account Settings" at any time by clicking on the "Edit Profile" link that opens when you click on your profile picture on the top right corner of the page.
+
+ 6. On the "Account Settings" page you can Edit your name, username, email, password, profile picture, background image, and your about me.
+
+7a. Your name will be displayed on your profile and on your public stories page. Everywhere else on the site your username will be displayed.
+7b. Your profile picture will be displayed on your profile, in Ignite and on your stories.
+7c. Your background image will be displayed on your profile page.
+7d. Your about me will be displayed on your profile page.
+7e. When writing "about me" click on "Continue writing about me" to have the AI generate more content.
+
+8. Purchase History. To see your purchase history go to "Edit Profile" page then click on the "Purchase History" on the left side of the page. Here you can see your purchase history and the status of your purchases.
+9. To see your Token Usage and Balance go to "Edit Profile" page then click on the "Token Usage" on the left side of the page. Here you can see your Token Usage and Balance. Your GPT-3.5 and GPT-4 Usage and Balance will be displayed here as well.
+10. Close Account. To close your account go to "Edit Profile" page then click on the "Close Account" on the left side of the page. Here you can close your account. Please note that this action is irreversible and will delete all your data from our servers.
+
+CREATING STORIES:
+
+11. On the top menu click on "Compose" to start writing your story.
+12. All of the text input fields have a "Continue writing..." button. By clicking on it, the AI will either create new content or continue from the point you left off, streamlining your storytelling experience.
+13. Each story needs a title, genre, writing style, author and image.
+14. All other fields are optional, but we recommend you fill them out to give your story a unique identity and flavor.
+15. The Compose Page is divided into four sections: Story Details, Genre and Writing Style, Story Image, and AI Prompts.
+16. AI Prompts are currently read-only.
+17. To start writing your story, fill in the title or click on "Continue writing..." to have the AI generate a title for you.
+18. Use the left side menu to navigate to "Genre and Writing Style" section.
+19. Select the Genre, Writing Style, Narrative Style, and Author you wish to emulate.
+19a. You can enter your own Writing Style, Narrative Style, and Author instead of selecting one from the list.
+20. Use the left side menu to navigate to "Story Image" section.
+21. Describe the image you want to generate in the "Image Prompt" field, or click on "Continue writing..." to have the AI generate an image prompt for you.
+22. Click on "Generate Image" to generate an image.
+23. Use the left side menu to set options to make your story private, and if you allow others to collaborate on your story.
+24. Click on "Create Story" to save your story and start writing.
+
+WRITING STORIES:
+
+25. Stories are written on the "Ignite" page.
+26. To go to the "Ignite" page click on "Ignite" on the top menu.
+27. On the left side you can see your stories and also the most recent stories other users have created.
+28. The right side is where you write your story. The UI is similar to a "Chat" app. Where you write your requests in the "Message" field and click on "Send" to send it to the AI. The AI will respond with the generated content, suggestions, or a rewrite.
+29. The first button with the number 0.5 on the right side of the message input found at the bottom of the page is the "Temperature" button. The temperature is a measure of randomness in the generated text. The higher the temperature, the more random the generated text will be. The lower the temperature, the more predictable the generated text will be.
+30. Besides the temperature button is the button with "3.5", this is the GPT version you are using. You can switch between GPT-3.5 and GPT-4 by clicking on the button.
+31. Finally, the last button is the "Send" button. Click on it will open a popup with 3 options:
+ 31a. Rewrite Last Response : This will send the last response from the AI to the AI again and ask it to rewrite it acccording to the instructions you enter in the "Message" field.
+ 31b. Get Suggestions: The AI will generate suggestions based on how the story is going and what is written so far. Clicking on a suggestion will put it into the "Message" field. You can then edit the suggestion and send it to the AI.
+ 31c. Send: This will send your message to the AI and the AI will respond with the generated content.
+
+
+THE LIBRARY:
+
+32. To go to the "Library" page click on "The Library" on the top menu.
+33. On the "Library" page you can see all the stories that have been created on FICTION•FUSION and are public.
+34. You can search for stories by title, genre, writing style, author, and username.
+35. You can click on the Genre Label to see all the stories in that genre.
+36. You can click on the profile picture of the author to see all the stories by that author.
+37. You can click on the title of the story to read the story.
+
+THE STORY:
+
+
+STORE:
+
+
+
+
+Happy Writing!
+
+The FICTION•FUSION Team

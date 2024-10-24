@@ -1,0 +1,13 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+
+Beat Text: ##beat_text##
+
+Existing Locations:
+##previous_codex_part##
+
+Go over the Beat Text and update or add to the Locations Codex with the new information. Only add Locations with a short description for the location if it is available, don't add lore, characters or object details. Only add content that adds value to the story. Do not add filler content. If content has not changed, copy from the Existing Locations Codex. Keep in mind that the Existing Locations Codex will be discarded so this New Locations Codex needs everything from the old one.
+
+Locations Codex:

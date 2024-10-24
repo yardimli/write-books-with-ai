@@ -1,0 +1,63 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+Create a story outline in the format "Freytag's Pyramid" with the structure like
+
+Act 1 - Introduction:
+Chapter 1:
+Chapter 2:
+
+Act 2 - Rising Action:
+Chapter 3:
+Chapter 4:
+
+Act 3 - Climax:
+Chapter 5:
+Chapter 6:
+
+Act 4 - Falling Action:
+Chapter 7:
+Chapter 8:
+
+Act 5 - Catastrophe:
+Chapter 9:
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "The name of the act",
+"chapters": [
+{
+"name": "The name of the chapter",
+"short_description": "A detailed description of what happens in this chapter. It should contain a beginning middle part and an end that leads to the next chapter.",
+"events": "Notable events in the chapter.",
+"people": "Description of people in the chapter.",
+"places": "Description of the places in this chapter.",
+"from_previous_chapter": "Summary of what we got from the previous chapter. N/A for first chapter.",
+"to_next_chapter": "Summary of what we will send to the next chapter. N/A for last chapter."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

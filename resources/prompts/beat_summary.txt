@@ -1,0 +1,8 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+
+Beat Text: ##beat_text##
+
+write a short summary of the beat that will help with the story outline. This should be a few sentences that describe the key events, places and people of the beat. This will help to write the next beat in the story. Only output the text for the summary without any additional information. Don't mention it is a beat.

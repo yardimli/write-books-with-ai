@@ -1,0 +1,24 @@
+About WriteBooksWithAI
+WriteBooksWithAI is an innovative web application designed to streamline the book writing process using artificial intelligence. This powerful tool allows users to create full-length books with AI assistance, from conceptualization to cover design.
+Key Features:
+
+AI-powered book generation using various language models
+Custom cover creation with AI-generated images and text
+Flexible structure options for different book types
+Beat generation for detailed chapter planning
+Content expansion and summarization for coherent storytelling
+Export options in PDF and HTML formats
+
+The app utilizes OpenRouter for backend processing and offers a range of AI models, including Claude-3-Haiku, Mistral, Hermes, and others. Users can switch between models to suit their specific needs, with some models being more suitable for certain content types.
+The intuitive interface guides users through the book creation process:
+
+Choose an AI model
+Describe your book concept
+Select a book structure
+Generate chapter outlines and beats
+Refine and expand content
+Create a custom AI-generated cover
+
+WriteBooksWithAI is currently free to use, with enough credits for approximately 100 full book writes. While the app uses lower-tier models by default, premium options like GPT-4 and Claude-3.5 are available for enhanced results at a cost of about $3 per book.
+Whether you're a aspiring author looking for inspiration or an experienced writer seeking to expedite your creative process, WriteBooksWithAI offers a unique and powerful solution for bringing your literary ideas to life.
+Visit https://writebookswithai.com to start your AI-assisted writing journey today!

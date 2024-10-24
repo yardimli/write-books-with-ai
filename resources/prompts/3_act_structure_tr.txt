@@ -1,0 +1,68 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+"3 Perde Yapısı" formatında aşağıdaki gibi bir yapıya sahip bir hikaye taslağı oluşturun
+
+1. Perde - Başlangıç:
+Bölüm 1:
+Bölüm 2:
+Bölüm 3:
+Bölüm 4:
+Bölüm 5:
+Bölüm 6:
+
+2. Perde - Orta:
+Bölüm 7:
+Bölüm 8:
+Bölüm 9:
+Bölüm 10:
+Bölüm 11:
+Bölüm 12:
+
+3. Perde - Son:
+Bölüm 13:
+Bölüm 14:
+Bölüm 15:
+Bölüm 16:
+Bölüm 17:
+Bölüm 18:
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "Perdenin adı",
+"chapters": [
+{
+"name": "Bölümün adı",
+"short_description": "Bu bölümde neler olduğuna dair detaylı bir açıklama. Bir başlangıç, orta kısım ve bir sonraki bölüme geçiş sağlayan bir son içermelidir.",
+"events": "Bölümdeki önemli olaylar.",
+"people": "Bölümdeki kişilerin açıklaması.",
+"places": "Bu bölümdeki yerlerin açıklaması.",
+"from_previous_chapter": "Önceki bölümden ne aldığımızın özeti. İlk bölüm için N/A.",
+"to_next_chapter": "Bir sonraki bölüme ne göndereceğimizin özeti. Son bölüm için N/A."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json

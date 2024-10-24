@@ -1,0 +1,13 @@
+Book Title: ##book_title##
+Back Cover Text: ##back_cover_text##
+Book Blurb: ##book_blurb##
+Book Language: ##language##
+
+Beat Text: ##beat_text##
+
+Existing Objects/Items Codex:
+##previous_codex_part##
+
+Go over the Beat Text and update or add to the Objects/Items Codex with the new information. Only add Objects and Items with a short description for the item if it is available, don't add lore, location or character details. Only add content that adds value to the story. Do not add filler content. If content has not changed, copy from the Objects/Items Codex. Keep in mind that the Existing Objects/Items Codex will be discarded so this Objects/Items Codex needs everything from the old one.
+
+Objects/Items Codex:

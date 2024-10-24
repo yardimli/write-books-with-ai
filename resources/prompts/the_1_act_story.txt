@@ -1,0 +1,49 @@
+The subject of the book is:
+##user_blurb##
+genre is ##genre##.
+adult content is ##adult_content##.
+try writing as ##writing_style##.
+write as ##narrative_style##.
+it is written in ##language##.
+
+Book Title: ##book_title##
+Book Blurb: ##book_blurb##
+Back Cover Text: ##back_cover_text##
+Character Profiles:
+##character_profiles##
+Book Language: ##language##
+
+Create a story outline in the format bellow. The story has 1 act and 3 chapters. The structure should be like:
+
+Act 1
+Chapter 1: Introduction. Here’s where you introduce your readers to your characters and establish your story setting and tone. I will dive into characters and setting more in later posts. Your protagonist is usually called to action here. Popular Fantasy writer Brandon Sanderson calls this an “inciting incident”, some sort of crisis point that makes your character get out of his or her world (or comfort zone) into a new world. Here you make some promises to your reader as to where the story leads to. (Make sure you keep them!)
+Chapter 2: Confrontation. In the middle part, a writer has a difficult task to keep the reader interested, before reaching the conclusion of the story. The protagonist and his or her allies face some complications and obstacles as they are moving along. Often things get worse for them and they need to find ways to tip the scale. Naturally, this depends on your genre. For action-packed fantasy or science fiction stories, there might be obstacles in the form of battles. In literary fiction, a character might contemplate a past decision that stands in the way of their present. It can also be a literal confrontation between your characters.
+Chapter 3: Resolution. Which is what your main character tries to do in the last act. He or she is actually doing something to tip the balance, face trials, solve problems. As a writer, you have to build towards a satisfying conclusion here that is living up to the promises you’ve made early on in the story.
+
+Output should be in JSON format as follows:
+{
+"acts": [
+{
+"name": "The name of the act",
+"chapters": [
+{
+"name": "The name of the chapter",
+"short_description": "A detailed description of what happens in this chapter. It should contain a beginning middle part and an end that leads to the next chapter.",
+"events": "Notable events in the chapter.",
+"people": "Description of people in the chapter.",
+"places": "Description of the places in this chapter.",
+"from_previous_chapter": "Summary of what we got from the previous chapter. N/A for first chapter.",
+"to_next_chapter": "Summary of what we will send to the next chapter. N/A for last chapter."
+}
+]
+}
+]
+}
+
+Don't include any text in front or after the JSON object.
+
+Use Double Quotes for Keys and String Values.
+Avoid Double Quotes Inside String Values. Instead, use Single Quotes.
+All opening double quotes should have a corresponding closing double quote.
+
+```json
