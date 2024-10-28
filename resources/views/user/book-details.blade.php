@@ -35,7 +35,6 @@
 									<a href="#" id="restartTour">{{ __('default.Restart Tour') }}</a>
 								</div>
 							
-							
 							@endif
 						</div>
 					</div>
@@ -178,6 +177,26 @@
 		</div>
 	</div>
 	
+	<!-- Goto Edit Book Modal -->
+	<div class="modal fade" id="gotoEditBookModal" tabindex="-1" aria-labelledby="gotoEditBookModalLabel"
+	     aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable">
+			<div class="modal-content modal-content-color">
+				<div class="modal-header modal-header-color">
+					<h5 class="modal-title" id="gotoEditBookModalLabel">{{__('default.Edit Book')}}</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{__('default.Close')}}"></button>
+				</div>
+				<div class="modal-body modal-body-color">
+					{{__('default.Click "start" to edit the book chapters and beats.')}}
+				</div>
+				<div class="modal-footer modal-footer-color justify-content-start">
+					<button type="button" class="btn btn-primary-soft" id="gotoEditBookBtn">{{__('default.Start')}}</button>
+					<button type="button" class="btn btn-secondary-soft" data-bs-dismiss="modal">{{__('default.Close')}}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	
 	@include('layouts.footer')
 
@@ -185,6 +204,16 @@
 
 @push('scripts')
 	<script src="/js/intro.min.js"></script>
+	
+	@if ( (Auth::user() && (($book['owner'] ?? '') === Auth::user()->email)) || (Auth::user() && Auth::user()->isAdmin()) )
+		<script>
+			let user_is_owner = true;
+		</script>
+	@else
+		<script>
+			let user_is_owner = false;
+		</script>
+	@endif
 	
 	<!-- Inline JavaScript code -->
 	<script>
@@ -205,7 +234,7 @@
 						element: '#createCoverBtn',
 						intro: "This button will open the cover image creation modal. You can create a cover image for your book here. You'll be able to describe the image and the AI will generate a cover image for you. Including your pen name and book title will make the cover more personalized.",
 					}
-					
+				
 				],
 				exitOnOverlayClick: false,
 				showStepNumbers: true,
@@ -263,6 +292,15 @@
 		}
 		
 		$(document).ready(function () {
+			
+			if (user_is_owner) {
+				$("#gotoEditBookModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+			}
+			
+			$('#gotoEditBookBtn').on('click', function () {
+				window.location.href = '{{route('edit-book',$book_slug)}}';
+			});
+			
 			toggleIntroJsStylesheet();
 			
 			// Start the tour if it's the user's first time
