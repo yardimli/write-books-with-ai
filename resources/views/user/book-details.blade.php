@@ -183,7 +183,7 @@
 		<div class="modal-dialog modal-dialog-scrollable">
 			<div class="modal-content modal-content-color">
 				<div class="modal-header modal-header-color">
-					<h5 class="modal-title" id="gotoEditBookModalLabel">{{__('default.Edit Book')}}</h5>
+					<h5 class="modal-title" id="gotoEditBookModalLabel">{{__('default.Start Writing')}}</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{__('default.Close')}}"></button>
 				</div>
 				<div class="modal-body modal-body-color">

@@ -407,4 +407,9 @@
 		'Output' => 'Çıktı',
 		'Book Details' => 'Kitap Detayları',
 		'Edit All Beats' => 'Tüm Vuruşları Düzenle',
+
+		'Start Writing' => 'Yazmaya Başla',
+		'Start' => 'Başla',
+		'Click "start" to edit the book chapters and beats.' => 'Kitap bölümlerini ve vuruşları düzenlemek için "başla"yı tıklayın.',
+
 	];

@@ -399,4 +399,8 @@
 		'Book Details' => 'Book Details',
 		'Edit All Beats' => 'Edit All Beats',
 
+		'Start Writing' => 'Start Writing',
+		'Start' => 'Start',
+		'Click "start" to edit the book chapters and beats.' => 'Click "start" to edit the book chapters and beats.',
+
 	];
