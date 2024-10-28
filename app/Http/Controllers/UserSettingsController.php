@@ -93,9 +93,7 @@
 			// Get the authenticated user
 			$user = $request->user();
 
-			$user_order_and_tokens = MyHelper::getUserOrdersAndTokens(Auth::user()->id);
-
-			return view('user.settings', compact('user', 'user_order_and_tokens'));
+			return view('user.settings', compact('user'));
 		}
 
 // Update user settings

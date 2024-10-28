@@ -296,33 +296,6 @@
 								<!-- Card body START -->
 								<div class="card-body p-2">
 									<ul class="list-unstyled">
-										<!-- Notif item -->
-										@foreach($user_order_and_tokens['orders'] as $order )
-											<li>
-												<div class="rounded badge-unread d-sm-flex border-0 mb-1 p-3 position-relative">
-													<!-- Avatar -->
-													<div class="avatar text-center">
-														<img class="avatar-img rounded-circle" src="/assets/images/logo/08.svg" alt="">
-													</div>
-													<!-- Info -->
-													<span class="mx-sm-3 my-2 my-sm-0">
-														<span
-															class="small text-body stretched-link"><b>Order ID: {{ $order['order_id'] }} - Total: ${{ $order['total_amount'] }}</b></span>
-														<br>
-														 @foreach($order['items'] as $item)
-															<span class="small text-body">{{ $item['product_name'] }} - ${{ $item['price'] }}</span>
-														@endforeach
-														
-													</span>
-													<!-- Action -->
-													<div class="d-flex ms-auto">
-														<p class="small me-5 text-nowrap">{{ $order['order_date'] }}<br>
-															(Reference ID: {{ $item['reference_id'] }}</p>
-													</div>
-												</div>
-											</li>
-											<!-- Notif item -->
-										@endforeach
 									</ul>
 								</div>
 								<!-- Card body END -->
@@ -343,58 +316,6 @@
 								<!-- Card header START -->
 								<!-- Card body START -->
 								<div class="card-body">
-									
-									<h6 class="mb-2">Token Summaries</h6>
-									<table class="table table-striped table-hover">
-										<tr>
-											<td><b>Total GPT-3.5 Credits:</b></td>
-											<td class="text-end">{{ number_format($user_order_and_tokens['gpt3_5_credits']) }}</td>
-											<td><b>Total GPT-4 Credits</b></td>
-											<td class="text-end">{{ number_format($user_order_and_tokens['gpt4_credits']) }}</td>
-										</tr>
-										<tr>
-											<td><b>Total GPT-3.5 Usage:</b></td>
-											<td class="text-end">{{ number_format($user_order_and_tokens['gpt3_5_credits_used']) }}</td>
-											<td><b>Total GPT-4 Usage</b></td>
-											<td class="text-end">{{ number_format($user_order_and_tokens['gpt4_credits_used']) }}</td>
-										</tr>
-										<tr>
-											<td><b>Available GPT-3.5 Credits:</b></td>
-											<td
-												class="text-end">{{ number_format($user_order_and_tokens['gpt3_5_credits'] - $user_order_and_tokens['gpt3_5_credits_used']) }}</td>
-											<td><b>Available GPT-4 Credits</b></td>
-											<td
-												class="text-end">{{ number_format($user_order_and_tokens['gpt4_credits'] - $user_order_and_tokens['gpt4_credits_used']) }}</td>
-									</table>
-									
-									
-									<h6 class="mb-2 mt-5">Token Usage</h6>
-									<table class="table table-striped table-hover">
-										<thead>
-										<tr>
-											<td>Date</td>
-											<td>Usage Type</td>
-											<td class="text-end">Prompt Tokens</td>
-											<td class="text-end">Completion Tokens</td>
-											<td class="text-end">Credit</td>
-											<td>Product Name</td>
-										</tr>
-										</thead>
-										<tbody>
-										<?php
-										?>
-										@foreach($user_order_and_tokens['token_usages'] as $token_usage)
-											<tr>
-												<td>{{ \Carbon\Carbon::parse($token_usage->created_at)->format('m/d/Y') }}</td>
-												<td>{{ $token_usage->usage_type }}</td>
-												<td class="text-end">{{ number_format($token_usage->prompt_tokens) }}</td>
-												<td class="text-end">{{ number_format($token_usage->completion_tokens) }}</td>
-												<td class="text-end">{{ number_format($token_usage->credit_tokens) }}</td>
-												<td>{{ $token_usage->product_name }}</td>
-											</tr>
-										@endforeach
-										</tbody>
-									</table>
 								</div>
 								<!-- Card body END -->
 							</div>

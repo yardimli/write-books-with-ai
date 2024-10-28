@@ -99,22 +99,6 @@
 	});
 </script>
 
-@if (Auth::check())
-	@php
-		//check if user has purchased {{__('default.Write Books With AI')}} Novella or Novel Package package
-		$found_package = false;
-		$user_order_and_tokens = App\Helpers\MyHelper::getUserOrdersAndTokens(Auth::user()->id);
-		foreach ($user_order_and_tokens['orders'] as $order) {
-		foreach ($order['items'] as $orderItem) {
-		if ($orderItem['product_name'] === 'Short Story Package' || $orderItem['product_name'] === 'Novella Package' || $orderItem['product_name'] === 'Novel Package') {
-			$found_package = true;
-			break;
-		}
-		}
-		}
-	@endphp
-@endif
-
 <body>
 
 <!-- =======================

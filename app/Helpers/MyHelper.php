@@ -96,13 +96,6 @@
 			],
 		];
 
-		public static function getUserOrdersAndTokens($user_id)
-		{
-			$userId = $user_id;
-			$orders = [];
-			$token_usages = [];
-			return ['orders' => $orders, 'token_usages' => $token_usages, 'gpt4_credits' => 0, 'gpt3_5_credits' => 0, 'gpt4_credits_used' => 0, 'gpt3_5_credits_used' => 0];		}
-
 
 		public static function getBlogData()
 		{

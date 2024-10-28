@@ -44,47 +44,15 @@
 							</form>
 						</td>
 					</tr>
-					@if ($user->user_order_and_tokens['orders']->count() > 1)
-						<tr>
-							<td colspan="3" style="padding-left:30px;">
-								Orders:<br>
-									@foreach($user->user_order_and_tokens['orders'] as $order)
-{{ $order['order_id'] }} - {{ $order['total_amount'] }} -
-									@foreach($order['items'] as $item)
-													<span class="small text-body">{{ $item['product_name'] }} - ${{ $item['price'] }} - {{ $item['reference_id'] }}</span>
-												@endforeach
-							- {{ $order['order_date'] }}<br>
-									@endforeach
-							</td>
-						</tr>
-					@endif
-					
-					<tr>
-						<td colspan="3" style="padding-left:30px;">
-						<b>Total GPT-3.5 Credits:</b> : {{ number_format($user->user_order_and_tokens['gpt3_5_credits']) }} - {{ number_format($user->user_order_and_tokens['gpt3_5_credits_used']) }}
-							----
-							<b>Total GPT-4 Credits</b> : {{ number_format($user->user_order_and_tokens['gpt4_credits']) }} - {{ number_format($user->user_order_and_tokens['gpt4_credits_used']) }}
-						</td>
-					</tr>
 					
 					
-					@if ($user->stories->count() > 0)
-						<tr>
-							<td colspan="3" style="padding-left:30px;">
-									@foreach($user->stories as $story)
-<a class="nav-link" style="display: inline-block;" href="{{ url('read-story/' . $story->chat_header_guid) }}">{{ $story->title }}</a> ({{ $story->total_word_count }} words) - {{ $story->created_at }} - {{ $story->is_header_deleted ? 'deleted - ' : '' }} {{ $story->is_private ? 'private - ' : '' }} {{ $story->nsfw ? 'nsfw - ' : '' }}  {{ str_replace(',',', ', $story->nsfw_reason) }}
-							<br>
-									@endforeach
-							</td>
-						</tr>
-					@endif
 				@endforeach
 				</tbody>
 			</table>
 			
 			<!-- Pagination Links -->
 			<?php
-				$users = $users->appends(['purchase' => $_GET['purchase'] ?? 'no', 'written' => $_GET['written'] ?? 'no', 'search' => $_GET['search'] ?? '' ]);
+				$users = $users->appends([ 'search' => $_GET['search'] ?? '' ]);
 
 			?>
 			<div class="d-flex justify-content-center">

@@ -18,6 +18,12 @@ Playground is open-sourced software licensed under the [MIT license](https://ope
 #
 ### Playground SETUP
 
+run `sudo find /var/www/writebookswithai -type d -exec chmod 775 {} \;`
+
+run `sudo find /var/www/writebookswithai -type f -exec chmod 775 {} \;`
+
+run `sudo chown -R ubuntu:www-data /var/www/writebookswithai`
+
 run `composer install`
 
 run `composer require pgvector/pgvector`

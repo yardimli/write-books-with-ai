@@ -33,37 +33,6 @@
 //				$users = $query->paginate(200);
 				$users = $query->orderBy('id', 'desc')->get();
 
-				//if query purchase is yes
-				if ($request->has('purchase') && $request->purchase === 'yes') {
-
-					foreach ($users as $user) {
-						$user->user_order_and_tokens = MyHelper::getUserOrdersAndTokens($user->id);
-					}
-
-					$users = $users->filter(function ($user) {
-						return $user->user_order_and_tokens['gpt4_credits'] > 0;
-					});
-				}
-
-
-				$users->map(function ($user) {
-					$past_stories = ChatHeader::with('user')
-						->where('user_id', $user->id)
-						->orderBy('created_at', 'desc')
-//						->limit(200)
-						->get();
-
-					$user->stories = $past_stories;
-				});
-
-				if ($request->has('written') && $request->written === 'yes') {
-
-					$users = $users->filter(function ($user) {
-						return count($user->stories) > 0;
-					});
-				}
-
-
 				$page = LengthAwarePaginator::resolveCurrentPage() ?: 1;
 
 				// Create a new LengthAwarePaginator instance
@@ -71,11 +40,6 @@
 				$users = new LengthAwarePaginator($items, $users->count(), 100, $page, [
 					'path' => LengthAwarePaginator::resolveCurrentPath(),
 				]);
-
-				foreach ($users as $user) {
-					$user->user_order_and_tokens = MyHelper::getUserOrdersAndTokens($user->id);
-				}
-
 
 				// Return to the users view
 				return view('user.users', compact('users'));

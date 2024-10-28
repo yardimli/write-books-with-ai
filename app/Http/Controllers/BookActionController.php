@@ -759,7 +759,6 @@ Prompt:";
 			return $closest;
 		}
 
-
 		public function stringSimilarity($s1, $s2)
 		{
 			$longer = $s1;
