@@ -22,7 +22,7 @@
 	
 	<link rel="stylesheet" href="/css/introjs.css">
 	<link rel="stylesheet" href="/css/introjs-dark.css" disabled>
-	<link rel="stylesheet" href="/css/simplemde-theme-dark.min.css"/>
+	<link rel="stylesheet" href="/css/simplemde-theme-bootstrap-dark.min.css"/>
 	
 	<script>
 		let bookData = @json($book);
@@ -37,13 +37,30 @@
 	
 	<div class="container mt-2">
 		<div class="mb-1 mt-1 w-100" style="text-align: right;">
-			<button class="btn btn-sm btn-info mb-1 mt-1 me-2" id="showBookDetailsBtn">
-				<i class="bi bi-info-circle"></i> {{__('default.Book Details')}}
-			</button>
-			<a class="btn btn-sm btn-primary mb-1 mt-1" href="{{route('my-books')}}"><i
-					class="bi bi-bookshelf"></i> {{__('default.Back to My Books')}}</a>
 			<a class="btn btn-sm btn-primary" href="{{route('book-details',$book_slug)}}"><i
 					class="bi bi-book"></i> {{__('default.Back to Book Page')}}</a>
+			<button class="btn btn-sm btn-secondary mb-1 mt-1" id="aiSettingsBtn">
+				<i class="bi bi-gear"></i> {{__('default.AI Settings')}}
+			</button>
+			<button class="btn btn-sm btn-info mb-1 mt-1" id="editBookDetailsBtn">
+				<i class="bi bi-info-circle"></i> {{__('default.Edit Book Details')}}
+			</button>
+			<button class="btn btn-sm btn-danger mb-1 mt-1" id="generateAllBeatsBtn"
+			        title="{{__('default.Write All Beats')}}"><i
+					class="bi bi-lightning-charge"></i> {{__('default.Write All Beats')}}
+			</button>
+			
+			<a href="{{route('book-codex',[$book_slug])}}" class="btn btn-sm btn-secondary mb-1 mt-1" id="openCodexBtn">
+				<i class="bi bi-book"></i> {{__('default.Open Codex')}}
+			</a>
+			
+			@if (Auth::user())
+				@if (Auth::user()->email === $book['owner'] || Auth::user()->name === $book['owner'] || Auth::user()->isAdmin())
+					<button class="btn btn-sm btn-primary mb-1 mt-1" id="openLlmPromptModalBtn">
+						<i class="bi bi-chat-dots"></i> {{__('default.Chat with AI')}}
+					</button>
+				@endif
+			@endif
 		</div>
 		<div class="card general-card">
 			<div class="card-header modal-header modal-header-color">
@@ -52,102 +69,6 @@
 			<div class="card-body modal-content modal-content-color d-flex flex-row">
 				<!-- Image Div -->
 				<div class="row">
-					
-					<!-- Text Blocks Div -->
-					<div class="col-12 col-xl-6">
-						
-						<span for="llmSelect" class="form-label">{{__('default.AI Engines:')}}
-							@if (Auth::user() && Auth::user()->isAdmin())
-								<label class="badge bg-danger">Admin</label>
-							@endif
-						
-						</span>
-						<select id="llmSelect" class="form-select mx-auto">
-							<option value="">{{__('default.Select an AI Engine')}}</option>
-							@if (Auth::user() && Auth::user()->isAdmin())
-								<option value="anthropic-sonet">anthropic :: claude-3.5-sonnet (direct)</option>
-								<option value="anthropic-haiku">anthropic :: haiku (direct)</option>
-								<option value="open-ai-gpt-4o">openai :: gpt-4o (direct)</option>
-								<option value="open-ai-gpt-4o-mini">openai :: gpt-4o-mini (direct)</option>
-							@endif
-							@if (Auth::user() && !empty(Auth::user()->anthropic_key))
-								<option value="anthropic-sonet">anthropic :: claude-3.5-sonnet (direct)</option>
-								<option value="anthropic-haiku">anthropic :: haiku (direct)</option>
-							@endif
-							@if (Auth::user() && !empty(Auth::user()->openai_api_key))
-								<option value="open-ai-gpt-4o">openai :: gpt-4o (direct)</option>
-								<option value="open-ai-gpt-4o-mini">openai :: gpt-4o-mini (direct)</option>
-							@endif
-						</select>
-					</div>
-					
-					<div class="col-12 col-lg-6">
-						<span for="writingStyle" class="form-label">{{__('default.Writing Style')}}:</span>
-						<select class="form-control" id="writingStyle" name="writingStyle" required>
-							@foreach($writingStyles as $style)
-								@if ($style['value'] === $book['writing_style'])
-									<option value="{{ $style['value'] }}" selected>{{ $style['label'] }}</option>
-								@else
-									<option value="{{ $style['value'] }}">{{ $style['label'] }}</option>
-								@endif
-							@endforeach
-						</select>
-					</div>
-					
-					<div class="col-12 col-lg-6">
-						<span for="narrativeStyle" class="form-label">{{__('default.Narrative Style')}}:</span>
-						<select class="form-control" id="narrativeStyle" name="narrativeStyle" required>
-							@foreach($narrativeStyles as $style)
-								@if ($style['value'] === $book['narrative_style'])
-									<option value="{{ $style['value'] }}" selected>{{ $style['value'] }}</option>
-								@else
-									<option value="{{ $style['value'] }}">{{ $style['value'] }}</option>
-								@endif
-							@endforeach
-						</select>
-					</div>
-					
-					<div class="col-12 d-none" id="modelInfo">
-						<div class="mt-1 small" style="border: 1px solid #ccc; border-radius: 5px; padding: 5px;">
-							<div id="modelDescription"></div>
-							<div id="modelPricing"></div>
-						</div>
-					</div>
-					
-					
-					<div class="col-12">
-						<button class="btn btn-danger mb-1 mt-2" id="generateAllBeatsBtn"
-						        title="{{__('default.Write All Beats')}}"><i
-								class="bi bi-lightning-charge"></i> {{__('default.Write All Beats')}}
-						</button>
-						
-						<a href="{{route('book-codex',[$book_slug])}}" class="btn btn-secondary mb-1 mt-2" id="openCodexBtn">
-							<i class="bi bi-book"></i> {{__('default.Open Codex')}}
-						</a>
-						
-						@if (Auth::user())
-							@if (Auth::user()->email === $book['owner'] || Auth::user()->name === $book['owner'] || Auth::user()->isAdmin())
-								<button class="btn btn-primary mb-1 mt-2" id="editBookDetailsBtn">
-									<i class="bi bi-pencil-square"></i> {{__('default.Edit Book Details')}}
-								</button>
-								
-								<button class="btn btn-primary mb-1 mt-2" id="openLlmPromptModalBtn">
-									<i class="bi bi-chat-dots"></i> {{__('default.Chat with AI')}}
-								</button>
-								
-								<button class="btn btn-danger delete-book-btn mb-1 mt-2"
-								        data-book-id="<?php echo urlencode($book_slug); ?>"><i
-										class="bi bi-trash-fill"></i> {{__('default.Delete Book')}}
-								</button>
-							@endif
-						@endif
-						
-						<br>
-						<a href="#" id="restartTour">{{ __('default.Restart Tour') }}</a>
-					
-					
-					</div>
-					
 					<div class="col-12">
 						<div class="mt-2 alert alert-primary d-none" id="noBeatsInfo" role="alert">
 							{{__('default.No beats have been generated for this chapter. Please click the "Recreate Beats" button to generate beats. You will need to save the beats before proceeding to write the beat contents.')}}
@@ -210,11 +131,13 @@
 		        @endphp
 
 ###### Beat {{$index+1}} Description
-{{$beat['description'] ?? ''}}
+> {{$beat['description'] ?? ''}}
+
 ###### Beat {{$index+1}} Text
 {{$beat['beat_text'] ?? ''}}
+
 ###### Beat {{$index+1}} Summary
-{{$beat['beat_summary'] ?? ''}}
+> {{$beat['beat_summary'] ?? ''}}
 	        @endforeach
         </textarea>
 								</div>
@@ -234,7 +157,14 @@
 			@endforeach
 		
 		</div>
+		<a href="#" id="restartTour">{{ __('default.Restart Tour') }}</a>
+		<br>
+		<br>
+		<br>
+		<br>
+	
 	</div>
+	
 </main>
 
 <!-- Modal for Generating All Beats -->
@@ -283,34 +213,79 @@
 	</div>
 </div>
 
-<!-- Book Details Modal -->
-<div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel" aria-hidden="true">
+<!-- Add this modal definition after your other modals -->
+<div class="modal fade" id="aiSettingsModal" tabindex="-1" aria-labelledby="aiSettingsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content modal-content-color">
 			<div class="modal-header modal-header-color">
-				<h5 class="modal-title" id="bookDetailsModalLabel">{{__('default.Book Details')}}</h5>
+				<h5 class="modal-title" id="aiSettingsModalLabel">{{__('default.AI Settings')}}</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body modal-body-color">
-				<h6>{{__('default.Blurb')}}</h6>
-				<p id="modalBookBlurb">{{$book['blurb']}}</p>
+				<div class="mb-3">
+					<label for="llmSelect" class="form-label">{{__('default.AI Engines:')}}
+						@if (Auth::user() && Auth::user()->isAdmin())
+							<label class="badge bg-danger">Admin</label>
+						@endif
+					</label>
+					<select id="llmSelect" class="form-select mx-auto">
+						<option value="">{{__('default.Select an AI Engine')}}</option>
+						@if (Auth::user() && Auth::user()->isAdmin())
+							<option value="anthropic-sonet">anthropic :: claude-3.5-sonnet (direct)</option>
+							<option value="anthropic-haiku">anthropic :: haiku (direct)</option>
+							<option value="open-ai-gpt-4o">openai :: gpt-4o (direct)</option>
+							<option value="open-ai-gpt-4o-mini">openai :: gpt-4o-mini (direct)</option>
+						@endif
+						@if (Auth::user() && !empty(Auth::user()->anthropic_key))
+							<option value="anthropic-sonet">anthropic :: claude-3.5-sonnet (direct)</option>
+							<option value="anthropic-haiku">anthropic :: haiku (direct)</option>
+						@endif
+						@if (Auth::user() && !empty(Auth::user()->openai_api_key))
+							<option value="open-ai-gpt-4o">openai :: gpt-4o (direct)</option>
+							<option value="open-ai-gpt-4o-mini">openai :: gpt-4o-mini (direct)</option>
+						@endif
+					</select>
+					<div class="mt-2 d-none" id="modelInfo">
+						<div class="small" style="border: 1px solid #ccc; border-radius: 5px; padding: 5px;">
+							<div id="modelDescription"></div>
+							<div id="modelPricing"></div>
+						</div>
+					</div>
+				</div>
 				
-				<h6>{{__('default.Back Cover Text')}}</h6>
-				<p id="modalBackCoverText">{!!str_replace("\n","<br>",$book['back_cover_text'])!!}</p>
+				<div class="mb-3">
+					<label for="writingStyle" class="form-label">{{__('default.Writing Style')}}:</label>
+					<select class="form-control" id="writingStyle" name="writingStyle" required>
+						@foreach($writingStyles as $style)
+							@if ($style['value'] === $book['writing_style'])
+								<option value="{{ $style['value'] }}" selected>{{ $style['label'] }}</option>
+							@else
+								<option value="{{ $style['value'] }}">{{ $style['label'] }}</option>
+							@endif
+						@endforeach
+					</select>
+				</div>
 				
-				<h6>{{__('default.Prompt For Book')}}</h6>
-				<p id="modalBookPrompt">{{$book['prompt'] ?? 'no prompt'}}</p>
-				
-				<h6>{{__('default.Character Profiles')}}</h6>
-				<p id="modalBookCharacters">{!! str_replace("\n","<br>", $book['character_profiles'] ?? 'no characters')!!}</p>
+				<div class="mb-3">
+					<label for="narrativeStyle" class="form-label">{{__('default.Narrative Style')}}:</label>
+					<select class="form-control" id="narrativeStyle" name="narrativeStyle" required>
+						@foreach($narrativeStyles as $style)
+							@if ($style['value'] === $book['narrative_style'])
+								<option value="{{ $style['value'] }}" selected>{{ $style['value'] }}</option>
+							@else
+								<option value="{{ $style['value'] }}">{{ $style['value'] }}</option>
+							@endif
+						@endforeach
+					</select>
+				</div>
 			</div>
-			<div class="modal-footer modal-footer-color">
+			<div class="modal-footer modal-footer-color justify-content-start">
+				<button type="button" class="btn btn-primary" id="saveAiSettingsBtn">{{__('default.Save Settings')}}</button>
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{__('default.Close')}}</button>
 			</div>
 		</div>
 	</div>
 </div>
-
 
 <!-- Modal for Editing Book Details -->
 <div class="modal fade" id="editBookDetailsModal" tabindex="-1" aria-labelledby="editBookDetailsModalLabel"
@@ -353,32 +328,6 @@
 	</div>
 </div>
 
-<!-- LLM Prompt Modal -->
-<div class="modal fade" id="llmPromptModal" tabindex="-1" aria-labelledby="llmPromptModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content modal-content-color">
-			<div class="modal-header modal-header-color">
-				<h5 class="modal-title" id="llmPromptModalLabel">{{__('default.Chat with AI')}}</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body modal-body-color">
-				<div class="mb-3">
-					<label for="userPrompt" class="form-label">{{__('default.User Prompt')}}</label>
-					<textarea class="form-control" id="userPrompt" rows="8"></textarea>
-				</div>
-				<div class="mb-3">
-					<label for="llmResponse" class="form-label">{{__('default.LLM Response')}}</label>
-					<textarea class="form-control" id="llmResponse" rows="10" readonly></textarea>
-				</div>
-			</div>
-			<div class="modal-footer modal-footer-color justify-content-start">
-				<button type="button" class="btn btn-primary" id="sendPromptBtn">{{__('default.Send Prompt')}}</button>
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{__('default.Close')}}</button>
-			</div>
-		</div>
-	</div>
-</div>
-
 <!-- Rewrite Chapter Modal -->
 <div class="modal fade" id="rewriteChapterModal" tabindex="-1" aria-labelledby="rewriteChapterModalLabel"
      aria-hidden="true">
@@ -408,27 +357,6 @@
 		</div>
 	</div>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
-     aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content modal-content-color">
-			<div class="modal-header modal-header-color">
-				<h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body modal-body-color">
-				Are you sure you want to delete this book?
-			</div>
-			<div class="modal-footer modal-footer-color justify-content-start">
-				<button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-			</div>
-		</div>
-	</div>
-</div>
-
 
 <!-- Write/Rewrite Beat Description/Text Modal -->
 <div class="modal fade" id="writeBeatModal" tabindex="-1" aria-labelledby="writeBeatModalLabel"
@@ -810,12 +738,10 @@
 	}
 	
 	//------------------------------------------------------------
-	function writeBeatSummary(beatText, beatDescription, beatIndex, chapterIndex, chapterFilename, showOverlay = true, save_results = false) {
+	function writeBeatSummary(beatText, beatDescription, beatIndex, chapterIndex, chapterFilename, editor, currentLine) {
 		return new Promise((resolve, reject) => {
-			if (showOverlay) {
-				$('#fullScreenOverlay').removeClass('d-none');
-			}
-			$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Writing beat summary...')}}<br>");
+			$('#fullScreenOverlay').removeClass('d-none');
+
 			
 			$.ajax({
 				url: `/book/write-beat-summary/{{$book_slug}}/${chapterFilename}`,
@@ -825,7 +751,7 @@
 					beat_index: beatIndex,
 					current_beat_description: beatDescription,
 					current_beat_text: beatText,
-					save_results: save_results,
+					save_results: false,
 				},
 				headers: {
 					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -834,24 +760,40 @@
 				success: function (response) {
 					$('#fullScreenOverlay').addClass('d-none');
 					if (response.success) {
-						$('#beatSummary_' + chapterIndex + '_' + beatIndex).val(response.prompt);
-						$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Beat summary generated successfully!')}}<br>");
+						
+						let doc = editor.getDoc();
+						
+						// Find the next section
+						let nextSectionLine = currentLine + 1;
+						while (nextSectionLine < doc.lineCount()) {
+							let nextLine = doc.getLine(nextSectionLine);
+							if (nextLine.startsWith('######')) {
+								break;
+							}
+							nextSectionLine++;
+						}
+						
+						// Insert the new content
+						doc.replaceRange(
+							'\n> ' + response.prompt + '\n',
+							{line: currentLine + 1, ch: 0},
+							{line: nextSectionLine - 1, ch: 0}
+						);
+						
 						resolve(response.prompt);
 					} else {
-						$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Failed to write summary: ')}}" + response.message + "<br>");
 						reject("{{__('default.Failed to write summary: ')}}" + response.message);
 					}
 				},
 				error: function () {
 					$('#fullScreenOverlay').addClass('d-none');
-					$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Failed to write beat summary.')}}");
 					reject("{{__('default.Failed to write beat summary.')}}<br>");
 				}
 			});
 		});
 	}
 	
-	function writeBeat(chapterFilename, writeMode, beatIndex, chapterIndex, textInput) {
+	function writeBeat(chapterFilename, writeMode, beatIndex, chapterIndex, textInput, editor, currentLine) {
 		const modal = $('#writeBeatModal');
 		$('#writeResult').val('');
 		
@@ -1007,13 +949,29 @@
 		});
 		
 		$('#acceptWriteBtn').off('click').on('click', function () {
-			if (writeMode === 'write_beat_description') {
-				$('#beatDescription_' + chapterIndex + '_' + beatIndex).val($('#writeResult').val());
+			
+			let doc = editor.getDoc();
+			
+			// Find the next section
+			let nextSectionLine = currentLine + 1;
+			while (nextSectionLine < doc.lineCount()) {
+				let nextLine = doc.getLine(nextSectionLine);
+				if (nextLine.startsWith('######')) {
+					break;
+				}
+				nextSectionLine++;
 			}
 			
-			if (writeMode === 'write_beat_text') {
-				$('#beatText_' + chapterIndex + '_' + beatIndex).val($('#writeResult').val());
+			let start_character = '';
+			if (writeMode === 'write_beat_description') {
+				start_character = '> ';
 			}
+			// Insert the new content
+			doc.replaceRange(
+				'\n' + start_character + $('#writeResult').val() + '\n',
+				{line: currentLine + 1, ch: 0},
+				{line: nextSectionLine - 1, ch: 0}
+			);
 			
 			$('#writeBeatModal').modal('hide');
 		});
@@ -1022,163 +980,6 @@
 	
 	
 	//------------------------------------------------------------
-	
-	function getLLMsData() {
-		return new Promise((resolve, reject) => {
-			$.ajax({
-				url: '/check-llms-json',
-				type: 'GET',
-				success: function (data) {
-					resolve(data);
-				},
-				error: function (xhr, status, error) {
-					reject(error);
-				}
-			});
-		});
-	}
-	
-	function linkify(text) {
-		const urlRegex = /(https?:\/\/[^\s]+)/g;
-		return text.replace(urlRegex, function (url) {
-			return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
-		});
-	}
-	
-	function isDarkMode() {
-		let savedTheme = localStorage.getItem('theme') || 'light';
-		if (savedTheme === 'dark') {
-			return true;
-		}
-	}
-	
-	function toggleIntroJsStylesheet() {
-		const lightStylesheet = document.querySelector('link[href="/css/introjs.css"]');
-		const darkStylesheet = document.querySelector('link[href="/css/introjs-dark.css"]');
-		
-		if (isDarkMode()) {
-			lightStylesheet.disabled = true;
-			darkStylesheet.disabled = false;
-		} else {
-			lightStylesheet.disabled = false;
-			darkStylesheet.disabled = true;
-		}
-	}
-	
-	function startIntro() {
-		let intro = introJs().setOptions({
-			steps: [
-				{
-					element: '#llmSelect',
-					intro: 'Select an AI engine to use for generating content.'
-				},
-				{
-					element: '#writingStyle',
-					intro: 'Select the writing style for your book. You can change this later for individual chapters or beats.'
-				},
-				{
-					element: '#narrativeStyle',
-					intro: 'Choose the narrative style for your book. Again this can be changed later for individual chapters or beats.'
-				},
-				{
-					element: '#generateAllBeatsBtn',
-					intro: 'Click this button to generate beats for all chapters in your book. You can also generate beats for individual chapters in the chapter beat editor.'
-				},
-				{
-					element: '#openCodexBtn',
-					intro: 'Click here to open the Codex, you\'ll be able to auto update the codex from the beats already written.'
-				},
-				{
-					element: '#editBookDetailsBtn',
-					intro: 'To modify blurb, back cover text, character profiles, author name, and publisher name, click here. The changes will be applied to all future generated content.'
-				},
-				{
-					element: '#openLlmPromptModalBtn',
-					intro: 'Click here to chat with the AI engine you selected. You can use this to generate content for your book.'
-				},
-				{
-					element: '.delete-book-btn',
-					intro: 'Click this button to delete the book. This action cannot be undone.'
-				},
-				{
-					element: '.chapterName',
-					intro: 'The chapter name is already written. You can modify it if you want. This will effect how generated content is written.'
-				},
-				{
-					element: '.chapterShortDescription',
-					intro: 'Provide a short description of what happens in this chapter. Again this will effect how generated content is written.'
-				},
-				{
-					element: '.chapterEvents',
-					intro: 'List the key events that occur in this chapter. The AI will use this to narrow down the generated content.'
-				},
-				{
-					element: '.chapterPeople',
-					intro: 'Note the important characters involved in this chapter. This will help the AI generate content that is relevant to the characters.'
-				},
-				{
-					element: '.chapterPlaces',
-					intro: 'Mention the significant locations in this chapter. The AI will use this to generate content that is relevant to the locations.'
-				},
-				{
-					element: '.chapterFromPreviousChapter',
-					intro: 'Describe how this chapter connects to the previous one. This will help the AI generate content that flows smoothly from one chapter to the next. The AI also will use previosly generated beats to generate new ones.'
-				},
-				{
-					element: '.chapterToNextChapter',
-					intro: 'Explain how this chapter leads into the next one. This will help the AI generate content that flows smoothly from one chapter to the next. This is critical as the next chapter probably wont have any beats written yet.'
-				},
-				{
-					element: '.update-chapter-btn',
-					intro: 'Click this button to save your changes to the chapter.'
-				},
-				{
-					element: '.editBeatsLink',
-					intro: 'Click here to edit and generate the beats for this chapter.'
-				},
-				{
-					element: '.rewriteChapterBtn',
-					intro: 'Click this button to rewrite the chapter using the AI engine. You wll get to see and change the prompt we send to the AI to get the new chapter structure.'
-				}
-			],
-			exitOnOverlayClick: false,
-			showStepNumbers: true,
-			showBullets: false,
-			showProgress: true,
-			nextLabel: "{{__('default.Next')}}",
-			prevLabel: "{{__('default.Prev')}}",
-			stepNumbersOfLabel: "{{__('default.of')}}",
-			doneLabel: "{{__('default.Done')}}",
-			
-			
-		});
-		
-		intro.onafterchange(function (targetElement) {
-			// if (targetElement.tagName.toLowerCase() === 'textarea') {
-			// 	var nextButton = document.querySelector('.introjs-nextbutton');
-			// 	nextButton.classList.add('introjs-disabled');
-			// 	nextButton.classList.add('custom-disabled'); // Add this line
-			//
-			// 	$(targetElement).on('input', function () {
-			// 		if ($(this).val().trim() !== '') {
-			// 			nextButton.classList.remove('introjs-disabled');
-			// 			nextButton.classList.remove('custom-disabled'); // Add this line
-			// 		} else {
-			// 			nextButton.classList.add('introjs-disabled');
-			// 			nextButton.classList.add('custom-disabled'); // Add this line
-			// 		}
-			// 	});
-			// }
-		});
-		
-		intro.oncomplete(function () {
-			localStorage.setItem('editBookIntroCompleted', 'true');
-		});
-		
-		intro.start();
-		
-	}
-	
 	
 	function parseChapterDetails(text) {
 		const fieldMappings = {
@@ -1196,16 +997,51 @@
 		
 		let parsedData = {};
 		let missingFields = [];
+		let beats = [];
 		
-		// Split the text into sections based on ##fieldname
+		//remove the "##### Beats" line
+		text = text.replace('##### Beats', '');
+		
+		// Split the text into sections based on ###### fieldname
 		const sections = text.split('###### ').filter(Boolean);
 		
+		let currentBeat = null;
 		sections.forEach(section => {
 			const lines = section.trim().split('\n');
 			let fieldName = lines[0].trim();
 			const fieldContent = lines.slice(1).join('\n').trim();
 			
-			parsedData[fieldName] = fieldContent;
+			// Check if this is a beat section
+			const beatMatch = fieldName.match(/^Beat (\d+) (Description|Text|Summary)$/);
+			if (beatMatch) {
+				const beatNumber = parseInt(beatMatch[1]) - 1;
+				const beatType = beatMatch[2].toLowerCase();
+				
+				// Initialize beat object if it doesn't exist
+				if (!beats[beatNumber]) {
+					beats[beatNumber] = {
+						description: '',
+						beat_text: '',
+						beat_summary: '',
+						lastUpdated: moment().format()
+					};
+				}
+				
+				// Remove '> ' prefix if it exists
+				let cleanContent = fieldContent.replace(/^> /, '').trim();
+				cleanContent = fieldContent.replace(/^>/, '').trim();
+				
+				// Map the content to the appropriate beat property
+				if (beatType === 'description') {
+					beats[beatNumber].description = cleanContent;
+				} else if (beatType === 'text') {
+					beats[beatNumber].beat_text = cleanContent;
+				} else if (beatType === 'summary') {
+					beats[beatNumber].beat_summary = cleanContent;
+				}
+			} else {
+				parsedData[fieldName] = fieldContent;
+			}
 		});
 		
 		// Check for missing required fields
@@ -1215,17 +1051,18 @@
 			}
 		});
 		
-		// If validation passed, transform the field names
+		// Transform field names if validation passed
 		if (missingFields.length === 0) {
 			const transformedData = {};
-			
 			Object.entries(parsedData).forEach(([key, value]) => {
-				const newKey = fieldMappings[key] || key; // Use mapping if exists, otherwise keep original key
+				const newKey = fieldMappings[key] || key;
 				transformedData[newKey] = value;
 			});
-			
 			parsedData = transformedData;
 		}
+		
+		// Add beats to parsed data
+		parsedData.beats = beats;
 		
 		return {
 			isValid: missingFields.length === 0,
@@ -1234,63 +1071,9 @@
 		};
 	}
 	
-	function showFormatHints() {
-		return `Required format:
-###### order
-[Chapter Sort Order here]
-###### name
-[Chapter name here]
-###### short_description
-[Short description here]
-###### events
-[Events here]
-###### people
-[People here]
-###### places
-[Places here]
-###### from_previous_chapter
-[Previous chapter connection here]
-###### to_next_chapter
-[Next chapter connection here]`;
-	}
-	
-	function showFormatHelp() {
-		$("#alertModalContent").html(`
-        <h5>{{__('default.Chapter Details Format')}}</h5>
-        <pre>${showFormatHints()}</pre>
-    `);
-		$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-	}
-	
-	function formatChapterWithBeats(chapter) {
-		let text = `###### Order\n${chapter.order}\n`;
-		text += `###### Name\n${chapter.name}\n`;
-		text += `###### Short Description\n${chapter.short_description}\n`;
-		text += `###### Events\n${chapter.events}\n`;
-		text += `###### People\n${chapter.people}\n`;
-		text += `###### Places\n${chapter.places}\n`;
-		text += `###### Previous Chapter\n${chapter.from_previous_chapter}\n`;
-		text += `###### Next Chapter\n${chapter.to_next_chapter}\n`;
-		text += `###### Beats\n`;
-		
-		if (chapter.beats && chapter.beats.length > 0) {
-			chapter.beats.forEach((beat, index) => {
-				text += `### Beat ${index + 1}\n`;
-				text += `#### Description\n${beat.description || ''}\n`;
-				text += `#### Text\n${beat.beat_text || ''}\n`;
-				text += `#### Summary\n${beat.beat_summary || ''}\n\n`;
-			});
-		}
-		
-		return text;
-	}
-	
-	
 	let createCoverFileName = '';
-	let bookToDelete = null;
 	
 	$(document).ready(function () {
-		toggleIntroJsStylesheet();
 		
 		@php
 			$chapter_index = 0;
@@ -1304,8 +1087,11 @@
 			element: document.getElementById('chapter_edit_{{$chapter_index}}'),
 			forceSync: true,
 			lineWrapping: true,
+			toolbar: ["bold", "italic", "heading", "quote", "|", "preview", "fullscreen", "|", "guide"],
 			
 		});
+		
+		simplemde_{{$chapter_index}}.codemirror.setSize(null,'80vh');
 		
 		simplemde_{{$chapter_index}}.codemirror.on('cursorActivity', function () {
 			var cursor = simplemde_{{$chapter_index}}.codemirror.getCursor();
@@ -1413,9 +1199,9 @@
 				}
 				
 				// Search for all sections of this beat
-				line_number = 0;
+				let star_line_number = 0;
 				
-				for (let i = line_number; i < totalLines; i++) {
+				for (let i = star_line_number; i < totalLines; i++) {
 					let lineContent = doc.getLine(i);
 					
 					// Check for each section type
@@ -1445,6 +1231,13 @@
 						let chapterIndex = simplemde_{{$chapter_index}}.element.id.replace('chapter_edit_', '');
 						let chapterFilename = $(simplemde_{{$chapter_index}}.element)
 							.closest('textarea').data('chapter-filename');
+						
+						if (beatContent.Description.startsWith('> ')) {
+							beatContent.Description = beatContent.Description.replace('> ', '');
+						}
+						if (beatContent.Summary.startsWith('> ')) {
+							beatContent.Summary = beatContent.Summary.replace('> ', '');
+						}
 
 
 						console.log('Chapter Index:', chapterIndex);
@@ -1457,27 +1250,16 @@
 						
 						
 						if (beatLabel==='Text') {
-							writeBeat(chapterFilename, 'write_beat_text', beatIndex, chapterIndex, beatContent.Description + "\n" + beatContent.Text);
+							writeBeat(chapterFilename, 'write_beat_text', beatIndex, chapterIndex, beatContent.Description + "\n" + beatContent.Text, simplemde_{{$chapter_index}}.codemirror,line_number);
 						}
 						
 						if (beatLabel==='Description') {
-							writeBeat(chapterFilename, 'write_beat_description', beatIndex, chapterIndex, beatContent.Description);
+							writeBeat(chapterFilename, 'write_beat_description', beatIndex, chapterIndex, beatContent.Description, simplemde_{{$chapter_index}}.codemirror,line_number);
 						}
 						
-						// Get current editor content
-						let currentContent = simplemde_{{$chapter_index}}.codemirror.getValue();
-						
-						// Build the pattern to match the section we want to modify
-						let sectionPattern = new RegExp(`###### Beat ${beatNumber} ${beatLabel}\\n([\\s\\S]*?)(?=######|$)`);
-						
-						// Find and replace the content
-						let newContent = currentContent.replace(sectionPattern, function(match, content) {
-							// Add asterisks to the content part while preserving the header
-							return `###### Beat ${beatNumber} ${beatLabel}\n**${content.trim()}**\n`;
-						});
-						
-						// Set the new content back to the editor
-						simplemde_{{$chapter_index}}.codemirror.setValue(newContent);
+						if (beatLabel==='Summary') {
+							writeBeatSummary(beatContent.Text, beatContent.Description, beatIndex, chapterIndex, chapterFilename, simplemde_{{$chapter_index}}.codemirror,line_number);
+						}
 						
 						e.preventDefault();
 						e.stopPropagation();
@@ -1498,31 +1280,32 @@
 		@endforeach
 		
 		
-		// Start the tour if it's the user's first timew
-		if (!localStorage.getItem('editBookIntroCompleted')) {
-			setTimeout(function () {
-				startIntro();
-			}, 500);
-		}
 		
-		document.addEventListener('click', function (event) {
-			if (event.target.classList.contains('introjs-nextbutton') &&
-				event.target.classList.contains('custom-disabled')) {
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		}, true);
-		
-		
-		// Restart tour button
-		$('#restartTour').on('click', function (e) {
-			e.preventDefault();
-			localStorage.removeItem('editBookIntroCompleted');
-			startIntro();
+		$('#aiSettingsBtn').on('click', function() {
+			$('#aiSettingsModal').modal('show');
 		});
 		
-		$('#showBookDetailsBtn').on('click', function () {
-			$('#bookDetailsModal').modal('show');
+		$('#saveAiSettingsBtn').on('click', function() {
+			// Save settings to localStorage
+			localStorage.setItem('edit-book-llm', $('#llmSelect').val());
+			localStorage.setItem('writing-style', $('#writingStyle').val());
+			localStorage.setItem('narrative-style', $('#narrativeStyle').val());
+			
+			savedLlm = $('#llmSelect').val();
+			
+			$('#aiSettingsModal').modal('hide');
+			
+			$("#alertModalContent").html('{{__("default.AI settings saved successfully!")}}');
+			$("#alertModal").modal('show');
+		});
+		
+		$('#editBookDetailsBtn').on('click', function () {
+			$('#editBlurb').val(bookData.blurb);
+			$('#editBackCoverText').val(bookData.back_cover_text);
+			$('#editCharacterProfiles').val(bookData.character_profiles);
+			$('#editAuthorName').val(bookData.author_name);
+			$('#editPublisherName').val(bookData.publisher_name);
+			$('#editBookDetailsModal').modal({backdrop: 'static', keyboard: true}).modal('show');
 		});
 		
 		
@@ -1576,11 +1359,6 @@
 			console.error('Error loading LLMs data:', error);
 		});
 		
-		$("#llmSelect").on('change', function () {
-			localStorage.setItem('edit-book-llm', $(this).val());
-			savedLlm = $(this).val();
-		});
-		
 		// change $llmSelect to savedLlm
 		console.log('set llmSelect to ' + savedLlm);
 		var dropdown = document.getElementById('llmSelect');
@@ -1594,37 +1372,6 @@
 		
 		$('.closeAndRefreshButton').on('click', function () {
 			location.reload();
-		});
-		
-		$('.delete-book-btn').on('click', function (e) {
-			e.preventDefault();
-			bookToDelete = $(this).data('book-id');
-			$('#deleteConfirmModal').modal({backdrop: 'static', keyboard: true}).modal('show');
-		});
-		
-		$('#confirmDeleteBtn').on('click', function () {
-			if (bookToDelete) {
-				$.ajax({
-					url: `/book/${bookToDelete}`,
-					type: 'DELETE',
-					headers: {
-						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-					},
-					success: function (response) {
-						if (response.success) {
-							$('#deleteConfirmModal').modal('hide');
-							window.location.href = '/my-books';
-						} else {
-							$("#alertModalContent").html(response.message);
-							$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-						}
-					},
-					error: function () {
-						$("#alertModalContent").html('{{__('default.An error occurred while deleting the book.')}}');
-						$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-					}
-				});
-			}
 		});
 		
 		$('.update-chapter-btn').on('click', function () {
@@ -1650,6 +1397,7 @@
 				chapter_filename: chapterFilename,
 				...parsedChapter.data
 			};
+			console.log(chapterData);
 			saveChapter(chapterData);
 		});
 		
@@ -1661,17 +1409,6 @@
 		$('#rewriteChapterModal').on('shown.bs.modal', function () {
 			$('#rewriteUserPrompt').focus();
 		});
-		
-		// Open the edit book details modal
-		$('#editBookDetailsBtn').on('click', function () {
-			$('#editBlurb').val(bookData.blurb);
-			$('#editBackCoverText').val(bookData.back_cover_text);
-			$('#editCharacterProfiles').val(bookData.character_profiles);
-			$('#editAuthorName').val(bookData.author_name);
-			$('#editPublisherName').val(bookData.publisher_name);
-			$('#editBookDetailsModal').modal({backdrop: 'static', keyboard: true}).modal('show');
-		});
-		
 		
 		$(".alert-modal-close-button").on('click', function () {
 			if (reload_window) {
@@ -1722,50 +1459,6 @@
 			});
 		});
 		
-		
-		// Open LLM Prompt Modal
-		$('#openLlmPromptModalBtn').on('click', function () {
-			$('#llmPromptModal').modal({backdrop: 'static', keyboard: true}).modal('show');
-		});
-		
-		// Chat with AI
-		$('#sendPromptBtn').on('click', function () {
-			const userPrompt = $('#userPrompt').val();
-			const llm = savedLlm; // Assuming you have a savedLlm variable
-			
-			// Disable buttons and show loading state
-			$('#sendPromptBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
-			$('#llmResponse').val('Processing...');
-			
-			$.ajax({
-				url: '/send-llm-prompt/' + bookSlug,
-				method: 'POST',
-				data: {
-					user_prompt: userPrompt,
-					llm: llm
-				},
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-				dataType: 'json',
-				success: function (response) {
-					if (response.success) {
-						$('#llmResponse').val(response.result);
-					} else {
-						$('#llmResponse').val('Error: ' + response.message);
-					}
-				},
-				error: function (xhr, status, error) {
-					$('#llmResponse').val('An error occurred while processing the request.');
-				},
-				complete: function () {
-					// Re-enable button and restore original text
-					$('#sendPromptBtn').prop('disabled', false).text('Send Prompt');
-				}
-			});
-		});
-		
-		
 		//------------------- BEATS -------------------
 		
 		if (localStorage.getItem('hideWriteBeatHelp') === 'true') {
@@ -1784,11 +1477,6 @@
 			}
 		});
 		
-		$('.closeAndRefreshButton').on('click', function () {
-			location.reload();
-		});
-		
-		
 		$("#recreateBeats").on('click', function (e) {
 			e.preventDefault();
 			recreateBeats(selectedChapter + '.json', $('#writingStyle').val(), $('#narrativeStyle').val());
@@ -1799,5 +1487,6 @@
 
 
 </script>
+@include('user.book-chat')
 </body>
 </html>

@@ -825,7 +825,7 @@
 			$currentBeatDescription = $request->input('current_beat_description') ?? '';
 			$currentBeatText = $request->input('current_beat_text') ?? '';
 			$beatIndex = $request->input('beat_index', 0);
-			$save_results = ($request->input('save_results', 'true') === 'true');
+			$save_results = ($request->input('save_results', 'false') === 'true');
 
 			$llm = $request->input('llm', 'anthropic/claude-3-haiku:beta');
 

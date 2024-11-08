@@ -542,6 +542,11 @@
 			$chapterData['to_next_chapter'] = $request->input('to_next_chapter');
 			$chapterData['lastUpdated'] = now()->toDateTimeString();
 
+			if ($request->has('beats')) {
+				$chapterData['beats'] = $request->input('beats');
+			}
+
+
 			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
 				return response()->json(['success' => true, 'message' => 'Chapter saved.']);
 			} else {

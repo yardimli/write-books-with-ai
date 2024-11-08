@@ -402,4 +402,5 @@
 
 		'Beats Per Chapter' => 'Beats Per Chapter',
 
+		'AI Settings' => 'AI Settings',
 	];

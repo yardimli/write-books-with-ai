@@ -94,6 +94,12 @@
 							</div>
 							
 							<p class="mt-4">{!! str_replace("\n","<br>", $book['back_cover_text'] ?? '')!!}</p>
+							
+							<button class="btn btn-sm btn-danger delete-book-btn mb-1 mt-1"
+							        data-book-id="<?php echo urlencode($book_slug); ?>"><i
+									class="bi bi-trash-fill"></i> {{__('default.Delete Book')}}
+							</button>
+						
 						</div>
 					
 					</div>
@@ -198,6 +204,26 @@
 	</div>
 	
 	
+	<!-- Delete Confirmation Modal -->
+	<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+	     aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content modal-content-color">
+				<div class="modal-header modal-header-color">
+					<h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body modal-body-color">
+					Are you sure you want to delete this book?
+				</div>
+				<div class="modal-footer modal-footer-color justify-content-start">
+					<button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	@include('layouts.footer')
 
 @endsection
@@ -218,6 +244,7 @@
 	<!-- Inline JavaScript code -->
 	<script>
 		var current_page = 'book_details';
+		let bookToDelete = null;
 		
 		function startIntro() {
 			let intro = introJs().setOptions({
@@ -233,7 +260,11 @@
 					{
 						element: '#createCoverBtn',
 						intro: "This button will open the cover image creation modal. You can create a cover image for your book here. You'll be able to describe the image and the AI will generate a cover image for you. Including your pen name and book title will make the cover more personalized.",
-					}
+					},
+					{
+						element: '.delete-book-btn',
+						intro: 'Click this button to delete the book. This action cannot be undone.'
+					},
 				
 				],
 				exitOnOverlayClick: false,
@@ -328,6 +359,38 @@
 				localStorage.removeItem('bookDetailsCompleted');
 				startIntro();
 			});
+			
+			$('.delete-book-btn').on('click', function (e) {
+				e.preventDefault();
+				bookToDelete = $(this).data('book-id');
+				$('#deleteConfirmModal').modal({backdrop: 'static', keyboard: true}).modal('show');
+			});
+			
+			$('#confirmDeleteBtn').on('click', function () {
+				if (bookToDelete) {
+					$.ajax({
+						url: `/book/${bookToDelete}`,
+						type: 'DELETE',
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						},
+						success: function (response) {
+							if (response.success) {
+								$('#deleteConfirmModal').modal('hide');
+								window.location.href = '/my-books';
+							} else {
+								$("#alertModalContent").html(response.message);
+								$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+							}
+						},
+						error: function () {
+							$("#alertModalContent").html('{{__('default.An error occurred while deleting the book.')}}');
+							$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+						}
+					});
+				}
+			});
+			
 			
 			$('#createCoverBtn').on('click', function (e) {
 				e.preventDefault();

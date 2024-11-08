@@ -411,4 +411,6 @@
 
 		'Beats Per Chapter' => 'Bölüm Başına Vuruş',
 
+		'AI Settings' => 'Yapay Zeka Ayarları',
+
 	];
