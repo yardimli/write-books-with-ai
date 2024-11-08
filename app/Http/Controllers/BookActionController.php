@@ -326,6 +326,7 @@
 
 			$language = $request->input('language', __('Default Language'));
 			$bookStructure = $request->input('book_structure', __('Default Structure'));
+			$beatsPerChapter = $request->input('beats_per_chapter', 3);
 			$userBlurb = $request->input('user_blurb', '');
 			$bookTitle = $request->input('book_title', '');
 			$bookBlurb = $request->input('book_blurb', '');
@@ -343,6 +344,15 @@
 			$writingStyle = $request->input('writing_style', 'Minimalist');
 			$narrativeStyle = $request->input('narrative_style', 'Third Person - The narrator has a godlike perspective');
 
+			$empty_beats= [];
+			for ($i = 0; $i < $beatsPerChapter; $i++) {
+				$empty_beats[] = [
+					'description' => '',
+					'beat_text' => '',
+					'beat_summary' => '',
+					'lastUpdated' => now()->toDateTimeString(),
+				];
+			}
 
 			$prompt = File::get(resource_path("prompts/{$bookStructure}"));
 
@@ -403,6 +413,7 @@
 					'example_question' => $exampleQuestion,
 					'example_answer' => $exampleAnswer,
 					'book_structure' => $bookStructure,
+					'beats_per_chapter' => $beatsPerChapter,
 				];
 
 				$bookSlug = Str::slug($bookTitle) . '-' . Str::random(8);
@@ -447,6 +458,7 @@
 							$chapter['people'] = implode("\n", $chapter['people']);
 						}
 
+
 						$chapterData = [
 							'row' => $actIndex + 1,
 							'order' => $chapterIndex + 1,
@@ -459,6 +471,7 @@
 							'to_next_chapter' => $chapter['to_next_chapter'] ?? 'N/A',
 							'main_prompt_example_question' => $exampleQuestion ?? 'no example question',
 							'main_prompt_example_answer' => $exampleAnswer ?? 'no example answer',
+							'beats' => $empty_beats,
 							'created' => now()->toDateTimeString(),
 							'lastUpdated' => now()->toDateTimeString(),
 						];
@@ -511,28 +524,29 @@
 
 			$chapterFilename = $request->input('chapter_filename');
 
-			$chapterPath = "{$bookPath}/{$chapterFilename}";
+			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
 
-			$chapterData = [
-				'row' => (File::exists($chapterPath) ? json_decode(File::get($chapterPath), true)['row'] : '0'),
-				'order' => $request->input('order', 0),
-				'name' => $request->input('name'),
-				'short_description' => $request->input('short_description'),
-				'events' => $request->input('events'),
-				'people' => $request->input('people'),
-				'places' => $request->input('places'),
-				'from_previous_chapter' => $request->input('from_previous_chapter'),
-				'to_next_chapter' => $request->input('to_next_chapter'),
-				'created' => (File::exists($chapterPath) ? json_decode(File::get($chapterPath), true)['created'] : now()->toDateTimeString()),
-				'lastUpdated' => now()->toDateTimeString(),
-			];
+			if (!File::exists($chapterFilePath)) {
+				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
+			}
 
-			File::put($chapterPath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+			$chapterData = json_decode(File::get($chapterFilePath), true);
+//			$chapterData['row'] = $request->input('row', 0);
+			$chapterData['order'] = $request->input('order', 1);
+			$chapterData['name'] = $request->input('name');
+			$chapterData['short_description'] = $request->input('short_description');
+			$chapterData['events'] = $request->input('events');
+			$chapterData['people'] = $request->input('people');
+			$chapterData['places'] = $request->input('places');
+			$chapterData['from_previous_chapter'] = $request->input('from_previous_chapter');
+			$chapterData['to_next_chapter'] = $request->input('to_next_chapter');
+			$chapterData['lastUpdated'] = now()->toDateTimeString();
 
-			$chapterData['chapterFilename'] = $chapterFilename;
-			$chapterData['success'] = true;
-
-			return response()->json($chapterData);
+			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
+				return response()->json(['success' => true, 'message' => 'Chapter saved.']);
+			} else {
+				return response()->json(['success' => false, 'message' => __('Failed to save chapter')]);
+			}
 		}
 
 		public function saveCover(Request $request, $bookSlug)

@@ -98,7 +98,7 @@
 									</div>
 									
 									<div class="row">
-										<div class="mb-1 col-12 col-xl-6">
+										<div class="mb-1 col-12 col-xl-5">
 											<label for="language" class="form-label">
 												{{__('default.Book Structure')}}:
 												<i class="fas fa-info-circle" data-bs-toggle="modal" data-bs-target="#bookStructureModal"
@@ -124,8 +124,25 @@
 													value="{{__('default.dan_harmons_story_circle.txt')}}">{{__('default.Dan Harmon\'s Story Circle (8 Acts, 15 Chapters)')}}</option>
 											</select>
 										</div>
-										
-										<div class="mb-1 col-12 col-xl-6">
+										<div class="mb-1 col-12 col-xl-3">
+											<label for="language" class="form-label">
+												{{__('default.Beats Per Chapter')}}
+											</label>
+											<select id="beatsPerChapter" class="form-select mx-auto mb-1">
+												<option value="2">2</option>
+												<option value="3" selected>3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+												<option value="6">6</option>
+												<option value="7">7</option>
+												<option value="8">8</option>
+												<option value="9">9</option>
+												<option value="10">10</option>
+											</select>
+										</div>
+											
+											
+											<div class="mb-1 col-12 col-xl-4">
 											<label for="llmSelect" class="form-label">{{__('default.AI Engines:')}}
 												@if (Auth::user() && Auth::user()->isAdmin())
 													<label class="badge bg-danger">Admin</label>
@@ -768,6 +785,7 @@
 						user_blurb: $('#user_blurb').val(),
 						language: $('#language').val(),
 						book_structure: $('#bookStructure').val(),
+						beats_per_chapter: $('#beatsPerChapter').val(),
 						author_name: $('#authorName').val(),
 						publisher_name: $('#publisherName').val(),
 						llm: savedLlm,
@@ -839,6 +857,7 @@
 						user_blurb: $('#user_blurb').val(),
 						language: $('#language').val(),
 						book_structure: $('#bookStructure').val(),
+						beats_per_chapter: $('#beatsPerChapter').val(),
 						author_name: $('#authorName').val(),
 						publisher_name: $('#publisherName').val(),
 						book_title: $('#book_title').val(),

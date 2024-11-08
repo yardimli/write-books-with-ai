@@ -84,6 +84,12 @@
 							- Move Blurb, Back Cover Text, Prompt and Character Profiles to modal.<br>
 							- Remember beats per chapter setting.<br>
 							- Add "Edit All Beats" button.<br>
+							
+							<br><br>
+							<strong>v0.1.9 - 11/03/2024</strong>
+							<br>
+							- Move beats per chapter to book creation.<br>
+						
 						</div>
 					</div>
 					<!-- Card END -->

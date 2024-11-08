@@ -66,9 +66,6 @@
 		'AI Engines:' => 'Yapay Zeka Motorları:',
 		'Select an AI Engine' => 'Bir Yapay Zeka Motoru Seçin',
 
-// Found in: resources\views\user\all-beats.blade.php, resources\views\user\edit-book.blade.php
-		'Number of beats per chapter:' => 'Bölüm başına vuruş sayısı:',
-
 // Found in: resources\views\user\all-beats.blade.php, resources\views\user\edit-book.blade.php, resources\views\user\start-writing.blade.php
 		'Writing Style' => 'Yazım Tarzı',
 		'Narrative Style' => 'Anlatım Tarzı',
@@ -411,5 +408,7 @@
 		'Start Writing' => 'Yazmaya Başla',
 		'Start' => 'Başla',
 		'Click "start" to edit the book chapters and beats.' => 'Kitap bölümlerini ve vuruşları düzenlemek için "başla"yı tıklayın.',
+
+		'Beats Per Chapter' => 'Bölüm Başına Vuruş',
 
 	];

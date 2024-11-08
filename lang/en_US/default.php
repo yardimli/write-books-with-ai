@@ -66,9 +66,6 @@
 		'AI Engines:' => 'AI Engines:',
 		'Select an AI Engine' => 'Select an AI Engine',
 
-// Found in: resources\views\user\all-beats.blade.php, resources\views\user\edit-book.blade.php
-		'Number of beats per chapter:' => 'Number of beats per chapter:',
-
 // Found in: resources\views\user\all-beats.blade.php, resources\views\user\edit-book.blade.php, resources\views\user\start-writing.blade.php
 		'Writing Style' => 'Writing Style',
 		'Narrative Style' => 'Narrative Style',
@@ -402,5 +399,7 @@
 		'Start Writing' => 'Start Writing',
 		'Start' => 'Start',
 		'Click "start" to edit the book chapters and beats.' => 'Click "start" to edit the book chapters and beats.',
+
+		'Beats Per Chapter' => 'Beats Per Chapter',
 
 	];

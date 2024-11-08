@@ -302,3 +302,48 @@ input::placeholder, textarea::placeholder {
     }
 
 }
+
+
+
+.floating-label-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.floating-label {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: var(--bs-body-bg);
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.form-control:focus + .floating-label {
+    opacity: 0;
+}
+
+.form-control {
+    margin-bottom: 0;
+}
+
+
+.floating-label {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.beat-write-buttons {
+    transition: opacity 0.3s ease-in-out;
+}
+
+
+.beat-action-button {
+    font-size: 12px;
+    padding: 2px 8px;
+    margin-left: 10px;
+    cursor: pointer;
+}

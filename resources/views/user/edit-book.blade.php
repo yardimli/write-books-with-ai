@@ -19,8 +19,10 @@
 	<link href="/css/bootstrap-icons.min.css" rel="stylesheet">
 	<!-- Custom styles for this template -->
 	<link href="/css/custom.css" rel="stylesheet">
+	
 	<link rel="stylesheet" href="/css/introjs.css">
 	<link rel="stylesheet" href="/css/introjs-dark.css" disabled>
+	<link rel="stylesheet" href="/css/simplemde-theme-dark.min.css"/>
 	
 	<script>
 		let bookData = @json($book);
@@ -79,22 +81,6 @@
 						</select>
 					</div>
 					
-					<div class="col-12 col-lg-6" id="beatsPerChapterLabel">
-						
-						<span style="font-size: 18px;">{{__('default.Number of beats per chapter:')}}</span>
-						<select id="beatsPerChapter" class="form-select mx-auto mb-1">
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-							<option value="7">7</option>
-							<option value="8">8</option>
-							<option value="9">9</option>
-							<option value="10">10</option>
-						</select>
-					</div>
-					
 					<div class="col-12 col-lg-6">
 						<span for="writingStyle" class="form-label">{{__('default.Writing Style')}}:</span>
 						<select class="form-control" id="writingStyle" name="writingStyle" required>
@@ -135,9 +121,6 @@
 								class="bi bi-lightning-charge"></i> {{__('default.Write All Beats')}}
 						</button>
 						
-						<a class="btn bt-lg btn-primary mb-1 mt-2 editAllBeatsLink"
-						   href="/book-beats/{{$book_slug}}/all-chapters"><i class="bi bi-check-all"></i> {{__('default.Edit All Beats')}}</a>
-						
 						<a href="{{route('book-codex',[$book_slug])}}" class="btn btn-secondary mb-1 mt-2" id="openCodexBtn">
 							<i class="bi bi-book"></i> {{__('default.Open Codex')}}
 						</a>
@@ -158,15 +141,27 @@
 								</button>
 							@endif
 						@endif
-					
+						
 						<br>
 						<a href="#" id="restartTour">{{ __('default.Restart Tour') }}</a>
 					
+					
 					</div>
+					
+					<div class="col-12">
+						<div class="mt-2 alert alert-primary d-none" id="noBeatsInfo" role="alert">
+							{{__('default.No beats have been generated for this chapter. Please click the "Recreate Beats" button to generate beats. You will need to save the beats before proceeding to write the beat contents.')}}
+						</div>
+					</div>
+				
 				</div>
 			
 			</div>
 		</div>
+		
+		@php
+			$chapter_index = 0;
+		@endphp
 		
 		<div class="book-chapter-board" id="bookBoard">
 			@foreach ($book['acts'] as $act)
@@ -177,64 +172,51 @@
 				</div>
 				
 				@foreach ($act['chapters'] as $chapter)
+					@php
+						$chapter_index++;
+					@endphp
 					<div class="card general-card">
-						<div class="card-header modal-header modal-header-color">
-							<div class="card-title">{{__('default.chapter_with_number', ['order' => $chapter['order']])}}
-								— {{$chapter['name']}}</div>
-						</div>
 						<div class="card-body modal-content modal-content-color">
 							<div class="row">
-								<div class="col-9">
-									<div class="mb-3">
-										<label for="chapterName" class="form-label">{{__('default.Name')}}</label>
-										<input type="text" class="form-control chapterName" value="{{$chapter['name']}}">
-									</div>
-								</div>
-								<div class="col-3">
-									<div class="mb-3">
-										<label for="chapterOrder" class="form-label">{{__('default.Order')}}</label>
-										<input type="text" class="form-control chapterOrder" value="{{$chapter['order']}}">
-									</div>
-								</div>
 								<div class="col-12">
-									<div class="mb-3">
-										<label for="chapterShortDescription" class="form-label">{{__('default.Short Description')}}</label>
-										<textarea class="form-control chapterShortDescription"
-										          rows="3">{{$chapter['short_description']}}</textarea>
-									</div>
-								</div>
-								<div class="col-12">
-									<div class="mb-3">
-										<label for="chapterEvents" class="form-label"> {{__('default.Events')}}</label>
-										<textarea class="form-control chapterEvents" rows="2">{{$chapter['events']}}</textarea>
-									</div>
-								</div>
-								<div class=" col-12">
-									<div class="mb-3">
-										<label for="chapterPeople" class="form-label">{{__('default.People')}}</label>
-										<textarea class="form-control chapterPeople" rows="2">{{$chapter['people']}}</textarea>
-									</div>
-								</div>
-								<div class=" col-12">
-									<div class="mb-3">
-										<label for="chapterPlaces" class="form-label"> {{__('default.Places')}}</label>
-										<textarea class="form-control chapterPlaces" rows="2">{{$chapter['places']}}</textarea>
-									</div>
-								</div>
-								<div class=" col-12">
-									<div class="mb-3">
-										<label for="chapterFromPreviousChapter"
-										       class="form-label">{{__('default.Previous Chapter')}}</label>
-										<textarea class="form-control chapterFromPreviousChapter"
-										          rows="2">{{$chapter['from_previous_chapter']}}</textarea>
-									</div>
-								</div>
-								<div class="col-12">
-									<div class="mb-3">
-										<label for="chapterToNextChapter" class="form-label"> {{__('default.Next Chapter')}}</label>
-										<textarea class="form-control chapterToNextChapter"
-										          rows="2">{{$chapter['to_next_chapter']}}</textarea>
-									</div>
+								
+        <textarea rows="10" class="form-control chapterDetailsTextarea"   data-chapter-filename="{{$chapter['chapterFilename']}}" id="chapter_edit_{{$chapter_index}}">###### {{__('default.Order')}}
+{{$chapter['order']}}
+###### {{__('default.Name')}}
+{{$chapter['name']}}
+###### {{__('default.Short Description')}}
+{{$chapter['short_description']}}
+###### {{__('default.Events')}}
+{{$chapter['events']}}
+###### {{__('default.People')}}
+{{$chapter['people']}}
+###### {{__('default.Places')}}
+{{$chapter['places']}}
+###### {{__('default.Previous Chapter')}}
+{{$chapter['from_previous_chapter']}}
+###### {{__('default.Next Chapter')}}
+{{$chapter['to_next_chapter']}}
+
+##### Beats
+	        @php
+		        $index = -1;
+						if (!array_key_exists('beats', $chapter)) {
+							$chapter['beats'] = [];
+						}
+	        @endphp
+	        @foreach($chapter['beats'] as $beat)
+		        @php
+			        $index++;
+		        @endphp
+
+###### Beat {{$index+1}} Description
+{{$beat['description'] ?? ''}}
+###### Beat {{$index+1}} Text
+{{$beat['beat_text'] ?? ''}}
+###### Beat {{$index+1}} Summary
+{{$beat['beat_summary'] ?? ''}}
+	        @endforeach
+        </textarea>
 								</div>
 							</div>
 							<div class="row" style="margin-left: -15px; margin-right: -15px;">
@@ -244,17 +226,9 @@
 										{{__('default.Update Chapter')}}
 									</button>
 								</div>
-								<div class="col-12 col-xl-4 col-lg-4 mb-2 mt-1">
-									<a class="btn bt-lg btn-primary w-100 editBeatsLink"
-									   href="/book-beats/{{$book_slug}}/{{str_replace('.json','', $chapter['chapterFilename'])}}">{{__('default.Open Beats')}}</a>
-								</div>
-								<div class="col-12 col-xl-4 col-lg-4 mb-2 mt-1">
-									<div class="btn bt-lg btn-warning w-100 rewriteChapterBtn"
-									     onclick="rewriteChapter('{{$chapter['chapterFilename']}}')">{{__('default.Rewrite Chapter')}}</div>
-								</div>
+								
 							</div>
 						</div>
-					
 					</div>
 				@endforeach
 			@endforeach
@@ -455,21 +429,69 @@
 	</div>
 </div>
 
+
+<!-- Write/Rewrite Beat Description/Text Modal -->
+<div class="modal fade" id="writeBeatModal" tabindex="-1" aria-labelledby="writeBeatModalLabel"
+     aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content modal-content-color">
+			<div class="modal-header modal-header-color">
+				<h5 class="modal-title" id="writeBeatModalLabel">{{__('default.Write Beat')}}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body modal-body-color">
+				<div id="writeBeatHelp" class="alert alert-info mb-3">
+					<p>{{__('default.The User Prompt you see here has been generated from the book details as well as current chapter and previous beats or chapters if they exist.')}}</p>
+					<p>{{__('default.It also contains the beat description that the AI will write out.')}}</p>
+					<p>{{__('You can modify the prompt to add specific details, change the tone, or provide additional context for the AI to consider when writing the beat.')}}</p>
+					<p><a href="#" id="hideWriteBeatHelp">{{__('default.Don\'t show again')}}</a></p>
+				</div>
+				<div class="mb-3">
+					<label for="writeUserPrompt" class="form-label">{{__('default.User Prompt')}}</label>
+					<textarea class="form-control" id="writeUserPrompt" rows="10"></textarea>
+				</div>
+				<div class="mb-3">
+					<h6>{{__('default.Output')}}:</h6>
+					<textarea class="form-control" id="writeResult" rows="10"></textarea>
+				</div>
+			</div>
+			<div class="modal-footer modal-footer-color justify-content-start">
+				<button type="button" class="btn btn-primary"
+				        id="sendWritePromptBtn">{{__('default.Write Beat')}}</button>
+				<button type="button" class="btn btn-success" id="acceptWriteBtn"
+				        style="display: none;">{{__('default.Accept Output')}}</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{__('default.Close')}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="fullScreenOverlay" class="d-none">
+	<div class="overlay-content">
+		<div class="spinner-border text-light" role="status">
+			<span class="visually-hidden">{{__('Loading...')}}</span>
+		</div>
+		<p class="mt-3 text-light">{{__('default.Processing your request. This may take a few minutes...')}}</p>
+	</div>
+</div>
+
+
 <!-- jQuery and Bootstrap Bundle (includes Popper) -->
 <script src="/js/jquery-3.7.0.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.bundle.js"></script>
 <script src="/js/moment.min.js"></script>
 
 <!-- Your custom scripts -->
 <script src="/js/custom-ui.js"></script>
 <script src="/js/intro.min.js"></script>
 
+<script src="/js/simplemde.min.js"></script>
+
+
 <script>
 	
 	let reload_window = false;
 	let savedLlm = localStorage.getItem('edit-book-llm') || 'anthropic/claude-3-haiku:beta';
-	let beatsPerChapter = localStorage.getItem('beats-per-chapter') || 3;
-	$("#beatsPerChapter").val(beatsPerChapter);
 	
 	function saveChapter(chapterData) {
 		$.ajax({
@@ -501,7 +523,7 @@
 		});
 	}
 	
-	function generateAllBeats(beatsPerChapter = 3, writingStyle = 'Minimalist', narrativeStyle = 'Third Person - The narrator has a godlike perspective') {
+	function generateAllBeats(writingStyle = 'Minimalist', narrativeStyle = 'Third Person - The narrator has a godlike perspective') {
 		const modal = $('#generateAllBeatsModal');
 		const progressBar = modal.find('.progress-bar');
 		const log = $('#generateAllBeatsLog');
@@ -517,11 +539,11 @@
 		chapters = bookData.acts.flatMap(act => act.chapters);
 		
 		console.log(chapters);
-		generateSingleChapterBeats(chapters, beatsPerChapter, writingStyle, narrativeStyle, 0);
+		generateSingleChapterBeats(chapters, writingStyle, narrativeStyle, 0);
 		
 	}
 	
-	function generateSingleChapterBeats(chapters, beatsPerChapter, writingStyle, narrativeStyle, chapter_index = 0) {
+	function generateSingleChapterBeats(chapters, writingStyle, narrativeStyle, chapter_index = 0) {
 		const modal = $('#generateAllBeatsModal');
 		const log = $('#generateAllBeatsLog');
 		
@@ -543,7 +565,7 @@
 			
 			$('#generateAllBeatsLog').scrollTop(log[0].scrollHeight);
 			if (chapter_index < totalChapters) {
-				generateSingleChapterBeats(chapters, beatsPerChapter, writingStyle, narrativeStyle, chapter_index);
+				generateSingleChapterBeats(chapters, writingStyle, narrativeStyle, chapter_index);
 			}
 		} else {
 			
@@ -552,7 +574,6 @@
 				method: 'POST',
 				data: {
 					llm: savedLlm,
-					beats_per_chapter: beatsPerChapter,
 					writing_style: writingStyle,
 					narrative_style: narrativeStyle,
 					save_results: true,
@@ -581,7 +602,7 @@
 							$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
 						}
 						if (chapter_index < totalChapters) {
-							generateSingleChapterBeats(chapters, beatsPerChapter, writingStyle, narrativeStyle, chapter_index);
+							generateSingleChapterBeats(chapters, writingStyle, narrativeStyle, chapter_index);
 						} else {
 							$('#generateAllBeatsLog').append('<br>' + '{{__('default.All chapters processed!')}}');
 							$('#generateAllBeatsLog').scrollTop(log[0].scrollHeight);
@@ -722,6 +743,286 @@
 		
 	}
 	
+	
+	function recreateBeats(selectedChapter, writingStyle = 'Minimalist', narrativeStyle = 'Third Person - The narrator has a godlike perspective') {
+		$('#fullScreenOverlay').removeClass('d-none');
+		$("#recreateBeats").prop('disabled', true);
+		
+		// Clear existing beats
+		$('#beatsList').empty();
+		
+		// Now proceed with creating beats
+		$.ajax({
+			url: `/book/write-beats/{{$book_slug}}/${selectedChapter}`,
+			method: 'POST',
+			data: {
+				llm: savedLlm,
+				writing_style: writingStyle,
+				narrative_style: narrativeStyle,
+				save_results: false,
+			},
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			dataType: 'json',
+			success: function (response) {
+				$('#fullScreenOverlay').addClass('d-none');
+				if (response.success) {
+					response.beats.forEach((beat, beatIndex) => {
+						let chapterIndex = selectedChapterIndex;
+						
+						const beatHtml = `
+        <div class="mb-3 beat-outer-container" data-chapter-index="${chapterIndex}"
+             data-chapter-filename="${selectedChapter}"
+             data-beat-index="${beatIndex}">
+            <h6>Beat ${beatIndex + 1}</h6>
+            <div id="beatDescriptionContainer_${chapterIndex}_${beatIndex}" class="mt-3 beat-description-container">
+                <label for="beatDescription_${chapterIndex}_${beatIndex}"
+                       class="form-label">{{__('default.Beat Description')}}</label>
+                <textarea id="beatDescription_${chapterIndex}_${beatIndex}"
+                          class="form-control beat-description-textarea"
+                          rows="3">${beat.description}</textarea>
+            </div>
+        </div>
+    `;
+						$('#beatsList').append(beatHtml);
+						
+					});
+					
+					$("#alertModalContent").html("{{__('default.All chapter Beat Descriptions generated successfully.')}}<br>{{__('default.Please review the beats and click "Save Beats" to save the changes.')}}<br>{{__('default.You will need to save the beats before proceeding to write the beat contents.')}}");
+					$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+					$('#recreateBeats').prop('disabled', false);
+					
+				} else {
+					$('#fullScreenOverlay').addClass('d-none');
+					$("#alertModalContent").html("{{__('default.Failed to create beats: ')}}" + JSON.stringify(response.message));
+					$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+					
+					$("#recreateBeats").prop('disabled', false);
+				}
+			},
+			error: function () {
+				$('#fullScreenOverlay').addClass('d-none');
+				$("#alertModalContent").html("{{__('default.An error occurred while creating beats.')}}");
+				$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+			}
+		});
+	}
+	
+	//------------------------------------------------------------
+	function writeBeatSummary(beatText, beatDescription, beatIndex, chapterIndex, chapterFilename, showOverlay = true, save_results = false) {
+		return new Promise((resolve, reject) => {
+			if (showOverlay) {
+				$('#fullScreenOverlay').removeClass('d-none');
+			}
+			$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Writing beat summary...')}}<br>");
+			
+			$.ajax({
+				url: `/book/write-beat-summary/{{$book_slug}}/${chapterFilename}`,
+				method: 'POST',
+				data: {
+					llm: savedLlm,
+					beat_index: beatIndex,
+					current_beat_description: beatDescription,
+					current_beat_text: beatText,
+					save_results: save_results,
+				},
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				dataType: 'json',
+				success: function (response) {
+					$('#fullScreenOverlay').addClass('d-none');
+					if (response.success) {
+						$('#beatSummary_' + chapterIndex + '_' + beatIndex).val(response.prompt);
+						$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Beat summary generated successfully!')}}<br>");
+						resolve(response.prompt);
+					} else {
+						$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Failed to write summary: ')}}" + response.message + "<br>");
+						reject("{{__('default.Failed to write summary: ')}}" + response.message);
+					}
+				},
+				error: function () {
+					$('#fullScreenOverlay').addClass('d-none');
+					$('#beatBlockResults_' + chapterIndex + '_' + beatIndex).prepend("{{__('default.Failed to write beat summary.')}}");
+					reject("{{__('default.Failed to write beat summary.')}}<br>");
+				}
+			});
+		});
+	}
+	
+	function writeBeat(chapterFilename, writeMode, beatIndex, chapterIndex, textInput) {
+		const modal = $('#writeBeatModal');
+		$('#writeResult').val('');
+		
+		if (writeMode === 'write_beat_description') {
+			$('#fullScreenOverlay').removeClass('d-none');
+			$.ajax({
+				url: `/book/write-beat-description/{{$book_slug}}/${chapterFilename}`,
+				method: 'POST',
+				data: {
+					llm: savedLlm,
+					create_prompt: true,
+					writing_style: $('#writingStyle').val(),
+					narrative_style: $('#narrativeStyle').val(),
+					beat_index: beatIndex,
+					current_beat: textInput,
+					save_results: false,
+				},
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				dataType: 'json',
+				success: function (response) {
+					$('#fullScreenOverlay').addClass('d-none');
+					$('#writeUserPrompt').val(response.prompt);
+					// Show the modal
+					modal.modal({backdrop: 'static', keyboard: true}).modal('show');
+				},
+				error: function () {
+					$('#fullScreenOverlay').addClass('d-none');
+				}
+			});
+		}
+		
+		if (writeMode === 'write_beat_text') {
+			$('#fullScreenOverlay').removeClass('d-none');
+			$.ajax({
+				url: `/book/write-beat-text/{{$book_slug}}/${chapterFilename}`,
+				method: 'POST',
+				data: {
+					llm: savedLlm,
+					create_prompt: true,
+					writing_style: $('#writingStyle').val(),
+					narrative_style: $('#narrativeStyle').val(),
+					beat_index: beatIndex,
+					current_beat: textInput,
+					save_results: false,
+				},
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				dataType: 'json',
+				success: function (response) {
+					$('#fullScreenOverlay').addClass('d-none');
+					$('#writeUserPrompt').val(response.prompt);
+					// Show the modal
+					modal.modal({backdrop: 'static', keyboard: true}).modal('show');
+				},
+				error: function () {
+					$('#fullScreenOverlay').addClass('d-none');
+				}
+			});
+		}
+		
+		// Handle the rewrite button click
+		$('#sendWritePromptBtn').off('click').on('click', function () {
+			const userPrompt = $('#writeUserPrompt').val();
+			$('#sendWritePromptBtn').prop('disabled', true).text('{{__('default.Rewriting...')}}');
+			
+			if (writeMode === 'write_beat_description') {
+				$('#fullScreenOverlay').removeClass('d-none');
+				$.ajax({
+					url: `/book/write-beat-description/{{$book_slug}}/${chapterFilename}`,
+					method: 'POST',
+					data: {
+						llm: savedLlm,
+						create_prompt: false,
+						beat_prompt: userPrompt,
+						writing_style: $('#writingStyle').val(),
+						narrative_style: $('#narrativeStyle').val(),
+						beat_index: beatIndex,
+						current_beat: textInput,
+						save_results: false,
+					},
+					headers: {
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					},
+					dataType: 'json',
+					success: function (response) {
+						$('#fullScreenOverlay').addClass('d-none');
+						
+						if (response.success) {
+							// Display the rewritten chapter in the modal
+							$('#writeResult').val(response.prompt);
+							$('#acceptWriteBtn').show();
+						} else {
+							$("#alertModalContent").html('{{__('default.Failed to write beat:')}}' + response.message);
+							$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+						}
+						$('#sendWritePromptBtn').prop('disabled', false).text('{{__('default.Write Beat')}}');
+					},
+					error: function () {
+						$("#alertModalContent").html('{{__('default.Error write beat')}}');
+						$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+						$('#sendWritePromptBtn').prop('disabled', false).text('{{__('default.Write Beat')}}');
+						
+						$('#fullScreenOverlay').addClass('d-none');
+					}
+				});
+			}
+			
+			if (writeMode === 'write_beat_text') {
+				$('#fullScreenOverlay').removeClass('d-none');
+				$.ajax({
+					url: `/book/write-beat-text/{{$book_slug}}/${chapterFilename}`,
+					method: 'POST',
+					data: {
+						llm: savedLlm,
+						create_prompt: false,
+						beat_prompt: userPrompt,
+						writing_style: $('#writingStyle').val(),
+						narrative_style: $('#narrativeStyle').val(),
+						beat_index: beatIndex,
+						current_beat: textInput,
+						save_results: false,
+					},
+					headers: {
+						'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+					},
+					dataType: 'json',
+					success: function (response) {
+						$('#fullScreenOverlay').addClass('d-none');
+						
+						if (response.success) {
+							// Display the rewritten chapter in the modal
+							$('#writeResult').val(response.prompt);
+							$('#acceptWriteBtn').show();
+						} else {
+							$("#alertModalContent").html('{{__('default.Failed to write beat:')}}' + response.message);
+							$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+						}
+						$('#sendWritePromptBtn').prop('disabled', false).text('{{__('default.Write Beat')}}');
+					},
+					error: function () {
+						$("#alertModalContent").html('{{__('default.Error write beat')}}');
+						$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+						$('#sendWritePromptBtn').prop('disabled', false).text('{{__('default.Write Beat')}}');
+						
+						$('#fullScreenOverlay').addClass('d-none');
+					}
+				});
+			}
+			
+		});
+		
+		$('#acceptWriteBtn').off('click').on('click', function () {
+			if (writeMode === 'write_beat_description') {
+				$('#beatDescription_' + chapterIndex + '_' + beatIndex).val($('#writeResult').val());
+			}
+			
+			if (writeMode === 'write_beat_text') {
+				$('#beatText_' + chapterIndex + '_' + beatIndex).val($('#writeResult').val());
+			}
+			
+			$('#writeBeatModal').modal('hide');
+		});
+		
+	}
+	
+	
+	//------------------------------------------------------------
+	
 	function getLLMsData() {
 		return new Promise((resolve, reject) => {
 			$.ajax({
@@ -770,10 +1071,6 @@
 				{
 					element: '#llmSelect',
 					intro: 'Select an AI engine to use for generating content.'
-				},
-				{
-					element: '#beatsPerChapter',
-					intro: 'Choose how many beats should be generated for each chapter.'
 				},
 				{
 					element: '#writingStyle',
@@ -883,13 +1180,325 @@
 	}
 	
 	
+	function parseChapterDetails(text) {
+		const fieldMappings = {
+			'{{__('default.Order')}}': 'order',
+			'{{__('default.Name')}}': 'name',
+			'{{__('default.Short Description')}}': 'short_description',
+			'{{__('default.Events')}}': 'events',
+			'{{__('default.People')}}': 'people',
+			'{{__('default.Places')}}': 'places',
+			'{{__('default.Previous Chapter')}}': 'from_previous_chapter',
+			'{{__('default.Next Chapter')}}': 'to_next_chapter'
+		};
+		
+		const requiredFields = Object.keys(fieldMappings);
+		
+		let parsedData = {};
+		let missingFields = [];
+		
+		// Split the text into sections based on ##fieldname
+		const sections = text.split('###### ').filter(Boolean);
+		
+		sections.forEach(section => {
+			const lines = section.trim().split('\n');
+			let fieldName = lines[0].trim();
+			const fieldContent = lines.slice(1).join('\n').trim();
+			
+			parsedData[fieldName] = fieldContent;
+		});
+		
+		// Check for missing required fields
+		requiredFields.forEach(field => {
+			if (!parsedData.hasOwnProperty(field)) {
+				missingFields.push(field);
+			}
+		});
+		
+		// If validation passed, transform the field names
+		if (missingFields.length === 0) {
+			const transformedData = {};
+			
+			Object.entries(parsedData).forEach(([key, value]) => {
+				const newKey = fieldMappings[key] || key; // Use mapping if exists, otherwise keep original key
+				transformedData[newKey] = value;
+			});
+			
+			parsedData = transformedData;
+		}
+		
+		return {
+			isValid: missingFields.length === 0,
+			missingFields: missingFields,
+			data: parsedData
+		};
+	}
+	
+	function showFormatHints() {
+		return `Required format:
+###### order
+[Chapter Sort Order here]
+###### name
+[Chapter name here]
+###### short_description
+[Short description here]
+###### events
+[Events here]
+###### people
+[People here]
+###### places
+[Places here]
+###### from_previous_chapter
+[Previous chapter connection here]
+###### to_next_chapter
+[Next chapter connection here]`;
+	}
+	
+	function showFormatHelp() {
+		$("#alertModalContent").html(`
+        <h5>{{__('default.Chapter Details Format')}}</h5>
+        <pre>${showFormatHints()}</pre>
+    `);
+		$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+	}
+	
+	function formatChapterWithBeats(chapter) {
+		let text = `###### Order\n${chapter.order}\n`;
+		text += `###### Name\n${chapter.name}\n`;
+		text += `###### Short Description\n${chapter.short_description}\n`;
+		text += `###### Events\n${chapter.events}\n`;
+		text += `###### People\n${chapter.people}\n`;
+		text += `###### Places\n${chapter.places}\n`;
+		text += `###### Previous Chapter\n${chapter.from_previous_chapter}\n`;
+		text += `###### Next Chapter\n${chapter.to_next_chapter}\n`;
+		text += `###### Beats\n`;
+		
+		if (chapter.beats && chapter.beats.length > 0) {
+			chapter.beats.forEach((beat, index) => {
+				text += `### Beat ${index + 1}\n`;
+				text += `#### Description\n${beat.description || ''}\n`;
+				text += `#### Text\n${beat.beat_text || ''}\n`;
+				text += `#### Summary\n${beat.beat_summary || ''}\n\n`;
+			});
+		}
+		
+		return text;
+	}
+	
+	
 	let createCoverFileName = '';
 	let bookToDelete = null;
 	
 	$(document).ready(function () {
 		toggleIntroJsStylesheet();
 		
-		// Start the tour if it's the user's first time
+		@php
+			$chapter_index = 0;
+		@endphp
+		@foreach ($book['acts'] as $act)
+		@foreach ($act['chapters'] as $chapter)
+		@php
+			$chapter_index++;
+		@endphp
+		let simplemde_{{$chapter_index}} = new SimpleMDE({
+			element: document.getElementById('chapter_edit_{{$chapter_index}}'),
+			forceSync: true,
+			lineWrapping: true,
+			
+		});
+		
+		simplemde_{{$chapter_index}}.codemirror.on('cursorActivity', function () {
+			var cursor = simplemde_{{$chapter_index}}.codemirror.getCursor();
+			var line_number = cursor.line;
+			var current_line = simplemde_{{$chapter_index}}.codemirror.getLine(line_number);
+			
+			$('.beat-action-button').remove();
+			
+			if (current_line.trim() === '###### Name') {
+				var cursorCoords = simplemde_{{$chapter_index}}.codemirror.cursorCoords(true);
+				// Create Add Beat button
+				var $button = $('<button>')
+					.addClass('btn btn-sm btn-success beat-action-button')
+					.text('Rewrite Chapter')
+					.css({
+						position: 'absolute',
+						left: (cursorCoords.left + 50) + 'px',
+						top: cursorCoords.top + 'px',
+						zIndex: 1000
+					})
+					.on('click', function (e) {
+						
+						let chapterIndex = simplemde_{{$chapter_index}}.element.id.replace('chapter_edit_', '');
+						let chapterFilename = $(simplemde_{{$chapter_index}}.element)
+							.closest('textarea').data('chapter-filename');
+						
+						rewriteChapter(chapterFilename);
+						
+						e.preventDefault();
+						e.stopPropagation();
+					});
+				
+				// Add button to the document
+				$('body').append($button);
+			}
+			
+				// Check if cursor is on ##### Beats line
+			if (current_line.trim() === '##### Beats') {
+				var cursorCoords = simplemde_{{$chapter_index}}.codemirror.cursorCoords(true);
+				
+				// Count existing beats
+				let doc = simplemde_{{$chapter_index}}.codemirror.getDoc();
+				let totalLines = doc.lineCount();
+				let beatCount = 0;
+				for (let i = 0; i < totalLines; i++) {
+					let lineContent = doc.getLine(i);
+					if (lineContent.match(/^###### Beat \d+ Description/)) {
+						beatCount++;
+					}
+				}
+				
+				// Create Add Beat button
+				var $button = $('<button>')
+					.addClass('btn btn-sm btn-success beat-action-button')
+					.text('Add Beat')
+					.css({
+						position: 'absolute',
+						left: (cursorCoords.left + 50) + 'px',
+						top: cursorCoords.top + 'px',
+						zIndex: 1000
+					})
+					.on('click', function (e) {
+						let newBeatNumber = beatCount + 1;
+						let newBeatContent = `\n###### Beat ${newBeatNumber} Description\n\n###### Beat ${newBeatNumber} Text\n\n###### Beat ${newBeatNumber} Summary\n`;
+						
+						// Get current content and append new beat
+						let currentContent = simplemde_{{$chapter_index}}.codemirror.getValue();
+						simplemde_{{$chapter_index}}.codemirror.setValue(currentContent + newBeatContent);
+						
+						e.preventDefault();
+						e.stopPropagation();
+					});
+				
+				// Add button to the document
+				$('body').append($button);
+			}
+			
+			let beatMatch = current_line.match(/^###### Beat (\d+) (Description|Text|Summary)/i);
+			if (beatMatch) {
+				let beatNumber = beatMatch[1];
+				let beatLabel = beatMatch[2];
+				let doc = simplemde_{{$chapter_index}}.codemirror.getDoc();
+				let totalLines = doc.lineCount();
+				
+				// Initialize objects to store all beat sections
+				let beatContent = {
+					Description: '',
+					Text: '',
+					Summary: ''
+				};
+				
+				// Function to extract content until next section or beat
+				function extractContent(startLine) {
+					let content = '';
+					let currentLine = startLine + 1;
+					while (currentLine < totalLines) {
+						let lineContent = doc.getLine(currentLine);
+						if (lineContent.startsWith('#')) {
+							break;
+						}
+						content += lineContent + '\n';
+						currentLine++;
+					}
+					return content.trim();
+				}
+				
+				// Search for all sections of this beat
+				line_number = 0;
+				
+				for (let i = line_number; i < totalLines; i++) {
+					let lineContent = doc.getLine(i);
+					
+					// Check for each section type
+					let sectionMatch = lineContent.match(new RegExp(`^###### Beat ${beatNumber} (Description|Text|Summary)`, 'i'));
+					
+					if (sectionMatch) {
+						let sectionType = sectionMatch[1];
+						beatContent[sectionType] = extractContent(i);
+					}
+				}
+				
+				// Get cursor coordinates for button placement
+				var cursorCoords = simplemde_{{$chapter_index}}.codemirror.cursorCoords(true);
+				
+				// Create and position the button
+				var $button = $('<button>')
+					.addClass('btn btn-sm btn-primary beat-action-button')
+					.text('Edit Beat ' + beatNumber + ' ' + beatLabel)
+					.css({
+						position: 'absolute',
+						left: (cursorCoords.left + 50) + 'px',
+						top: cursorCoords.top + 'px',
+						zIndex: 1000
+					})
+					.on('click', function (e) {
+						let beatIndex = Number(beatNumber) - 1;
+						let chapterIndex = simplemde_{{$chapter_index}}.element.id.replace('chapter_edit_', '');
+						let chapterFilename = $(simplemde_{{$chapter_index}}.element)
+							.closest('textarea').data('chapter-filename');
+
+
+						console.log('Chapter Index:', chapterIndex);
+						console.log('Chapter Filename:', chapterFilename);
+						console.log('Beat Number:', beatNumber);
+						console.log('Beat Label:', beatLabel);
+						console.log('Description:', beatContent.Description);
+						console.log('Text:', beatContent.Text);
+						console.log('Summary:', beatContent.Summary);
+						
+						
+						if (beatLabel==='Text') {
+							writeBeat(chapterFilename, 'write_beat_text', beatIndex, chapterIndex, beatContent.Description + "\n" + beatContent.Text);
+						}
+						
+						if (beatLabel==='Description') {
+							writeBeat(chapterFilename, 'write_beat_description', beatIndex, chapterIndex, beatContent.Description);
+						}
+						
+						// Get current editor content
+						let currentContent = simplemde_{{$chapter_index}}.codemirror.getValue();
+						
+						// Build the pattern to match the section we want to modify
+						let sectionPattern = new RegExp(`###### Beat ${beatNumber} ${beatLabel}\\n([\\s\\S]*?)(?=######|$)`);
+						
+						// Find and replace the content
+						let newContent = currentContent.replace(sectionPattern, function(match, content) {
+							// Add asterisks to the content part while preserving the header
+							return `###### Beat ${beatNumber} ${beatLabel}\n**${content.trim()}**\n`;
+						});
+						
+						// Set the new content back to the editor
+						simplemde_{{$chapter_index}}.codemirror.setValue(newContent);
+						
+						e.preventDefault();
+						e.stopPropagation();
+					});
+				
+				// Add button to the document
+				$('body').append($button);
+			}
+		});
+		
+		// Clean up when editor loses focus
+		simplemde_{{$chapter_index}}.codemirror.on('blur', function () {
+			// $('.beat-action-button').remove();
+		});
+
+		
+		@endforeach
+		@endforeach
+		
+		
+		// Start the tour if it's the user's first timew
 		if (!localStorage.getItem('editBookIntroCompleted')) {
 			setTimeout(function () {
 				startIntro();
@@ -912,7 +1521,7 @@
 			startIntro();
 		});
 		
-		$('#showBookDetailsBtn').on('click', function() {
+		$('#showBookDetailsBtn').on('click', function () {
 			$('#bookDetailsModal').modal('show');
 		});
 		
@@ -940,7 +1549,7 @@
 				llmSelect.val(savedLlm);
 			}
 			
-			llmSelect.on('click', function() {
+			llmSelect.on('click', function () {
 				$('#modelInfo').removeClass('d-none');
 			});
 			
@@ -1021,33 +1630,36 @@
 		$('.update-chapter-btn').on('click', function () {
 			var chapterFilename = $(this).data('chapter-filename');
 			var chapterCard = $(this).closest('.card');
+			var chapterText = chapterCard.find('.chapterDetailsTextarea').val();
+			
+			// Parse and validate the chapter details
+			const parsedChapter = parseChapterDetails(chapterText);
+			
+			if (!parsedChapter.isValid) {
+				$("#alertModalContent").html(
+					'{{__("default.Missing required fields:")}} ' +
+					parsedChapter.missingFields.join(', ') +
+					'<br><br>{{__("default.Please ensure all fields are present with their ###### fieldname markers.")}}'
+				);
+				$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
+				return;
+			}
+			
 			
 			var chapterData = {
 				chapter_filename: chapterFilename,
-				name: chapterCard.find('.chapterName').val(),
-				order: chapterCard.find('.chapterOrder').val(),
-				short_description: chapterCard.find('.chapterShortDescription').val(),
-				events: chapterCard.find('.chapterEvents').val(),
-				people: chapterCard.find('.chapterPeople').val(),
-				places: chapterCard.find('.chapterPlaces').val(),
-				from_previous_chapter: chapterCard.find('.chapterFromPreviousChapter').val(),
-				to_next_chapter: chapterCard.find('.chapterToNextChapter').val()
+				...parsedChapter.data
 			};
 			saveChapter(chapterData);
 		});
 		
 		$('#generateAllBeatsBtn').on('click', function (e) {
 			e.preventDefault();
-			generateAllBeats(parseInt($('#beatsPerChapter').val()), $("#writingStyle").val(), $("#narrativeStyle").val());
+			generateAllBeats($("#writingStyle").val(), $("#narrativeStyle").val());
 		});
 		
 		$('#rewriteChapterModal').on('shown.bs.modal', function () {
 			$('#rewriteUserPrompt').focus();
-		});
-		
-		$('#beatsPerChapter').on('change', function () {
-			localStorage.setItem('beats-per-chapter', $(this).val());
-			beatsPerChapter = $(this).val();
 		});
 		
 		// Open the edit book details modal
@@ -1151,6 +1763,35 @@
 					$('#sendPromptBtn').prop('disabled', false).text('Send Prompt');
 				}
 			});
+		});
+		
+		
+		//------------------- BEATS -------------------
+		
+		if (localStorage.getItem('hideWriteBeatHelp') === 'true') {
+			$('#writeBeatHelp').hide();
+		}
+		
+		$('#hideWriteBeatHelp').on('click', function (e) {
+			e.preventDefault();
+			localStorage.setItem('hideWriteBeatHelp', 'true');
+			$('#writeBeatHelp').hide();
+		});
+		
+		$('#writeBeatModal').on('show.bs.modal', function () {
+			if (localStorage.getItem('hideWriteBeatHelp') !== 'true') {
+				$('#writeBeatHelp').show();
+			}
+		});
+		
+		$('.closeAndRefreshButton').on('click', function () {
+			location.reload();
+		});
+		
+		
+		$("#recreateBeats").on('click', function (e) {
+			e.preventDefault();
+			recreateBeats(selectedChapter + '.json', $('#writingStyle').val(), $('#narrativeStyle').val());
 		});
 		
 		

@@ -15,7 +15,7 @@
 
 	class BookBeatController extends Controller
 	{
-		public function bookBeats(Request $request, $bookSlug, $selectedChapter = 'all-chapters', $beatsPerChapter = 3)
+		public function bookBeats(Request $request, $bookSlug, $selectedChapter = 'all-chapters')
 		{
 			$verified = MyHelper::verifyBookOwnership($bookSlug);
 			if (!$verified['success']) {
@@ -25,8 +25,6 @@
 			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
 			$bookData = json_decode(File::get("{$bookPath}/book.json"), true);
 			$actsData = json_decode(File::get("{$bookPath}/acts.json"), true);
-
-			$beatsPerChapter = intval($beatsPerChapter);
 
 			// Load all chapters and their beats
 			$acts = [];
@@ -41,7 +39,7 @@
 					if (!isset($chapterData['beats'])) {
 						$chapterData['beats'] = [];
 						//create 3 empty beats
-						for ($i = 0; $i < $beatsPerChapter; $i++) {
+						for ($i = 0; $i < 3; $i++) {
 							$chapterData['beats'][] = [
 								'description' => '',
 								'beat_text' => '',
@@ -893,114 +891,6 @@
 			}
 
 			echo json_encode(['success' => true, 'prompt' => $resultData]);
-		}
-
-		public function saveBeats(Request $request, $bookSlug, $chapterFilename)
-		{
-			$verified = MyHelper::verifyBookOwnership($bookSlug);
-			if (!$verified['success']) {
-				return response()->json($verified);
-			}
-
-			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
-			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
-
-			if (!File::exists($chapterFilePath)) {
-				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
-			}
-
-			$posted_beats = $request->input('beats');
-			$posted_beats = json_decode($posted_beats, true);
-			if (json_last_error() !== JSON_ERROR_NONE) {
-				return response()->json(['success' => false, 'message' => 'Invalid JSON', 'error' => json_last_error_msg(), 'beats' => $posted_beats]);
-			}
-
-			//check if beats are empty
-			if (empty($posted_beats)) {
-				return response()->json(['success' => false, 'message' => 'Beats are empty.', 'beats' => $posted_beats]);
-			}
-
-			foreach ($posted_beats as $beat) {
-				if (!isset($beat['beat_text'])) {
-					$beat['beat_text'] = '';
-				}
-				if (!isset($beat['beat_summary'])) {
-					$beat['beat_summary'] = '';
-				}
-			}
-
-			$chapterData = json_decode(File::get($chapterFilePath), true);
-			$chapterData['beats'] = $posted_beats;
-
-			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
-				return response()->json(['success' => true, 'message' => 'Beats saved.']);
-			} else {
-				return response()->json(['success' => false, 'message' => __('Failed to save beats')]);
-			}
-		}
-
-		public function saveSingleBeat(Request $request, $bookSlug, $chapterFilename)
-		{
-			$verified = MyHelper::verifyBookOwnership($bookSlug);
-			if (!$verified['success']) {
-				return response()->json($verified);
-			}
-
-			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
-
-			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
-			if (!File::exists($chapterFilePath)) {
-				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
-			}
-
-			$chapterData = json_decode(File::get($chapterFilePath), true);
-
-			$beatIndex = (int)$request->input('beat_index', 0);
-			$beatDescription = $request->input('beat_description', '');
-			$beatText = $request->input('beat_text', '');
-			$beatSummary = $request->input('beat_summary', '');
-
-			$chapterData['beats'][$beatIndex]['description'] = $beatDescription;
-			$chapterData['beats'][$beatIndex]['beat_text'] = $beatText;
-			$chapterData['beats'][$beatIndex]['beat_summary'] = $beatSummary;
-
-			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
-				return response()->json(['success' => true, 'message' => 'Beats saved.']);
-			} else {
-				return response()->json(['success' => false, 'message' => __('Failed to save beats')]);
-			}
-		}
-
-		public function addEmptyBeat(Request $request, $bookSlug, $chapterFilename)
-		{
-			$verified = MyHelper::verifyBookOwnership($bookSlug);
-			if (!$verified['success']) {
-				return response()->json($verified);
-			}
-
-			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
-			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
-
-			if (!File::exists($chapterFilePath)) {
-				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
-			}
-
-			$chapterData = json_decode(File::get($chapterFilePath), true);
-			$beatIndex = (int)$request->input('beat_index');
-			$position = $request->input('position');
-			$newBeat = json_decode($request->input('new_beat'), true);
-
-			if ($position === 'before') {
-				array_splice($chapterData['beats'], $beatIndex, 0, [$newBeat]);
-			} else {
-				array_splice($chapterData['beats'], $beatIndex + 1, 0, [$newBeat]);
-			}
-
-			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
-				return response()->json(['success' => true, 'message' => __('Empty beat added successfully.')]);
-			} else {
-				return response()->json(['success' => false, 'message' => __('Failed to add empty beat')]);
-			}
 		}
 
 	}
