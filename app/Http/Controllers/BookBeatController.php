@@ -135,6 +135,88 @@
 			]);
 		}
 
+		public function writeChapterSummary($bookSlug, $chapterFilename, $currentBeatIndex, $llm)
+		{
+			$verified = MyHelper::verifyBookOwnership($bookSlug);
+			if (!$verified['success']) {
+				return response()->json($verified);
+			}
+
+			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
+
+			if ($llm === 'anthropic-haiku' || $llm === 'anthropic-sonet') {
+				$model = $llm === 'anthropic-haiku' ? env('ANTHROPIC_HAIKU_MODEL') : env('ANTHROPIC_SONET_MODEL');
+			} elseif ($llm === 'open-ai-gpt-4o' || $llm === 'open-ai-gpt-4o-mini') {
+				$model = $llm === 'open-ai-gpt-4o' ? env('OPEN_AI_GPT4_MODEL') : env('OPEN_AI_GPT4_MINI_MODEL');
+			} else {
+				$model = $llm;
+			}
+
+
+			$bookData = json_decode(File::get("{$bookPath}/book.json"), true);
+
+			// Load the current chapter data
+			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
+			if (!file_exists($chapterFilePath)) {
+				return response()->json(['success' => false, 'message' => __('Chapter file not found')]);
+			}
+
+			$chapterData = json_decode(File::get($chapterFilePath), true);
+			if (!isset($chapterData['beats'])) {
+				return response()->json(['success' => false, 'message' => __('No beats found in chapter')]);
+			}
+
+			// Collect all previous beats
+			$previousBeats = [];
+			for ($i = 0; $i < count($chapterData['beats']); $i++) {
+				if ($i < $currentBeatIndex) { // Skip the current beat
+					$beat = $chapterData['beats'][$i];
+					if (!empty($beat['beat_text'])) {
+						$previousBeats[] = [
+							'index' => $i + 1,
+							'text' => $beat['beat_text']
+						];
+					}
+				}
+			}
+
+			if (empty($previousBeats)) {
+				return ['success' => true, 'summary' => __('No previous beats to summarize')];
+			}
+
+			// Create the prompt for summarization
+			$beatPromptTemplate = File::get(resource_path('prompts/chapter_summary.txt'));
+
+			// Prepare the beats text for the prompt
+			$beatsText = '';
+			foreach ($previousBeats as $beat) {
+				$beatsText .= "Beat {$beat['index']}:\n{$beat['text']}\n\n";
+			}
+
+			$replacements = [
+				'##language##' => $bookData['language'] ?? 'English',
+				'##book_title##' => $bookData['title'] ?? 'no title',
+				'##back_cover_text##' => $bookData['back_cover_text'] ?? 'no back cover text',
+				'##chapter##' => $chapterData['name'] ?? 'no name',
+				'##description##' => $chapterData['short_description'] ?? 'no description',
+				'##beats##' => $beatsText,
+			];
+
+			$beatPrompt = str_replace(array_keys($replacements), array_values($replacements), $beatPromptTemplate);
+
+			// Get the summary from the AI
+			$resultData = MyHelper::llm_no_tool_call($llm, '', '', $beatPrompt, false);
+
+			if (isset($resultData->error)) {
+				return ['success' => false, 'message' => $resultData->error];
+			}
+
+			return [
+				'success' => true,
+				'summary' => $resultData
+			];
+		}
+
 		public function writeBeats(Request $request, $bookSlug, $chapterFilename)
 		{
 			$verified = MyHelper::verifyBookOwnership($bookSlug);
@@ -325,7 +407,7 @@
 
 				if ($save_results) {
 					if (file_exists($chapterFilePath)) {
-						$chapterData = json_decode(file_get_contents($chapterFilePath), true);
+						$chapterData = json_decode(File::get($chapterFilePath), true);
 						$chapterData['beats'] = $beats;
 						$chapterData['example_question'] = $example_question;
 						$chapterData['example_answer'] = $example_answer;
@@ -426,7 +508,6 @@
 			$createPrompt = $createPrompt === 'true';
 
 			if ($createPrompt) {
-				$previous_beat_summaries = '';
 				$last_beat_full_text = '';
 				$next_beat = '';
 
@@ -434,6 +515,9 @@
 				if ($current_beat === '') {
 					if (isset($current_chapter['beats'][$beatIndex])) {
 						$current_beat = $current_chapter['beats'][$beatIndex]['beat_text'] ?? '';
+						if ($current_beat==='') {
+							$current_beat = 'Current beat description not written yet.';
+						}
 					}
 				}
 
@@ -442,9 +526,6 @@
 					for ($i = 0; $i < $beatIndex; $i++) {
 						if ($i === $beatIndex - 1) {
 							$last_beat_full_text = $current_chapter['beats'][$i]['beat_text'] ?? '';
-						} else {
-							$current_beat_summary = $current_chapter['beats'][$i]['beat_summary'] ?? $current_chapter['beats'][$i]['description'] ?? '';
-							$previous_beat_summaries .= $current_beat_summary . "\n";
 						}
 					}
 				} else {
@@ -456,9 +537,6 @@
 						for ($i = 0; $i < $prev_beats_count; $i++) {
 							if ($i === $prev_beats_count - 1) {
 								$last_beat_full_text = $prev_chapter_beats[$i]['beat_text'] ?? '';
-							} else {
-								$current_beat_summary = $prev_chapter_beats[$i]['beat_summary'] ?? $prev_chapter_beats[$i]['description'] ?? '';
-								$previous_beat_summaries .= $current_beat_summary . "\n";
 							}
 						}
 					}
@@ -474,10 +552,6 @@
 					}
 				}
 
-				// Trim any trailing newlines from previous_beat_summaries
-				$previous_beat_summaries = rtrim($previous_beat_summaries);
-
-
 				// Load the beat prompt template
 				$beatPromptTemplate = File::get(resource_path('prompts/beat_description_prompt.txt'));
 
@@ -489,6 +563,13 @@
 				}
 				if (isset($current_chapter['people']) && is_array($current_chapter['people'])) {
 					$current_chapter['people'] = implode("\n", $current_chapter['people']);
+				}
+
+				$chapterSummary = self::writeChapterSummary($bookSlug, $chapterFilename, $beatIndex, $llm);
+				if ($chapterSummary['success']) {
+					$chapterSummary = $chapterSummary['summary'];
+				} else {
+					$chapterSummary = 'no chapter summary';
 				}
 
 				$replacements = [
@@ -505,7 +586,7 @@
 					'##places##' => $current_chapter['places'] ?? 'no places',
 					'##previous_chapter##' => $previous_chapter_beats ?? 'Beginning of the book',
 					'##next_chapter##' => $current_chapter['to_next_chapter'] ?? 'No more chapters',
-					'##previous_beat_summaries##' => $previous_beat_summaries,
+					'##chapter_summary##' => $chapterSummary,
 					'##last_beat_full_text##' => $last_beat_full_text,
 					'##codex##' => ($bookData['codex']['characters'] ?? 'no characters') . "\n" .
 						($bookData['codex']['locations'] ?? 'no locations') . "\n" .
@@ -534,6 +615,8 @@
 					$example_answer = $current_chapter['example_answer'];
 				}
 
+				$beatPrompt = str_replace('----------------------------------------------------', '', $beatPrompt);
+
 				$resultData = MyHelper::llm_no_tool_call($llm, $example_question, $example_answer, $beatPrompt, false);
 
 				if (isset($resultData->error)) {
@@ -547,7 +630,7 @@
 					$chapterFilePath = "{$bookPath}/{$chapterFilename}";
 
 					if (file_exists($chapterFilePath)) {
-						$chapterData = json_decode(file_get_contents($chapterFilePath), true);
+						$chapterData = json_decode(File::get($chapterFilePath), true);
 						$chapterData['beats'][$beatIndex]['description'] = $resultData;
 
 						if (file_put_contents($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
@@ -638,7 +721,6 @@
 				$model = $llm;
 			}
 
-			$previous_beat_summaries = '';
 			$last_beat_full_text = '';
 			$next_beat = '';
 
@@ -654,9 +736,6 @@
 				for ($i = 0; $i < $beatIndex; $i++) {
 					if ($i === $beatIndex - 1) {
 						$last_beat_full_text = $current_chapter['beats'][$i]['beat_text'] ?? '';
-					} else {
-						$current_beat_summary = $current_chapter['beats'][$i]['beat_summary'] ?? $current_chapter['beats'][$i]['description'] ?? '';
-						$previous_beat_summaries .= $current_beat_summary . "\n";
 					}
 				}
 			} else {
@@ -668,9 +747,6 @@
 					for ($i = 0; $i < $prev_beats_count; $i++) {
 						if ($i === $prev_beats_count - 1) {
 							$last_beat_full_text = $prev_chapter_beats[$i]['beat_text'] ?? '';
-						} else {
-							$current_beat_summary = $prev_chapter_beats[$i]['beat_summary'] ?? $prev_chapter_beats[$i]['description'] ?? '';
-							$previous_beat_summaries .= $current_beat_summary . "\n";
 						}
 					}
 				}
@@ -693,10 +769,6 @@
 				}
 			}
 
-			// Trim any trailing newlines from previous_beat_summaries
-			$previous_beat_summaries = rtrim($previous_beat_summaries);
-
-
 			$createPrompt = $request->input('create_prompt', 'false');
 			$createPrompt = $createPrompt === 'true';
 
@@ -717,6 +789,14 @@
 					$current_chapter['people'] = implode("\n", $current_chapter['people']);
 				}
 
+				$chapterSummary = self::writeChapterSummary($bookSlug, $chapterFilename, $beatIndex, $llm);
+				if ($chapterSummary['success']) {
+					$chapterSummary = $chapterSummary['summary'];
+				} else {
+					$chapterSummary = 'no chapter summary';
+				}
+
+
 				$replacements = [
 					'##book_title##' => $bookData['title'] ?? 'no title',
 					'##back_cover_text##' => $bookData['back_cover_text'] ?? 'no back cover text',
@@ -731,7 +811,7 @@
 					'##places##' => $current_chapter['places'] ?? 'no places',
 					'##previous_chapter##' => $previous_chapter_beats ?? 'Beginning of the book',
 					'##next_chapter##' => $current_chapter['to_next_chapter'] ?? 'No more chapters',
-					'##previous_beat_summaries##' => $previous_beat_summaries,
+					'##chapter_summary##' => $chapterSummary,
 					'##last_beat_full_text##' => $last_beat_full_text,
 					'##codex##' => ($bookData['codex']['characters'] ?? 'no characters') . "\n" .
 						($bookData['codex']['locations'] ?? 'no locations') . "\n" .
@@ -783,6 +863,8 @@
 				}
 
 
+				$beatPrompt = str_replace('----------------------------------------------------', '', $beatPrompt);
+
 				$resultData = MyHelper::llm_no_tool_call($llm, $example_question, $example_answer, $beatPrompt, false);
 
 				if (isset($resultData->error)) {
@@ -796,7 +878,7 @@
 					$chapterFilePath = "{$bookPath}/{$chapterFilename}";
 
 					if (file_exists($chapterFilePath)) {
-						$chapterData = json_decode(file_get_contents($chapterFilePath), true);
+						$chapterData = json_decode(File::get($chapterFilePath), true);
 						$chapterData['beats'][$beatIndex]['beat_text'] = $resultData;
 
 						if (file_put_contents($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
@@ -813,7 +895,7 @@
 			}
 		}
 
-		public function writeBeatSummary(Request $request, $bookSlug, $chapterFilename)
+		public function saveChapter(Request $request, $bookSlug)
 		{
 			$verified = MyHelper::verifyBookOwnership($bookSlug);
 			if (!$verified['success']) {
@@ -822,75 +904,46 @@
 
 			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
 
-			$currentBeatDescription = $request->input('current_beat_description') ?? '';
-			$currentBeatText = $request->input('current_beat_text') ?? '';
-			$beatIndex = $request->input('beat_index', 0);
-			$save_results = ($request->input('save_results', 'false') === 'true');
+			$chapterFilename = $request->input('chapter_filename');
 
-			$llm = $request->input('llm', 'anthropic/claude-3-haiku:beta');
+			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
 
-			if ($llm === 'anthropic-haiku' || $llm === 'anthropic-sonet') {
-				$model = $llm === 'anthropic-haiku' ? env('ANTHROPIC_HAIKU_MODEL') : env('ANTHROPIC_SONET_MODEL');
-			} elseif ($llm === 'open-ai-gpt-4o' || $llm === 'open-ai-gpt-4o-mini') {
-				$model = $llm === 'open-ai-gpt-4o' ? env('OPEN_AI_GPT4_MODEL') : env('OPEN_AI_GPT4_MINI_MODEL');
-			} else {
-				$model = $llm;
+			if (!File::exists($chapterFilePath)) {
+				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
 			}
 
-			// Load the beat prompt template
-			$beatPromptTemplate = File::get(resource_path('prompts/beat_summary.txt'));
+			$chapterData = json_decode(File::get($chapterFilePath), true);
+			$chapterData['order'] = $request->input('order', 1);
+			$chapterData['name'] = $request->input('name');
+			$chapterData['short_description'] = $request->input('short_description');
+			$chapterData['events'] = $request->input('events');
+			$chapterData['people'] = $request->input('people');
+			$chapterData['places'] = $request->input('places');
+			$chapterData['from_previous_chapter'] = $request->input('from_previous_chapter');
+			$chapterData['to_next_chapter'] = $request->input('to_next_chapter');
+			$chapterData['lastUpdated'] = now()->toDateTimeString();
 
-			if (isset($current_chapter['events']) && is_array($current_chapter['events'])) {
-				$current_chapter['events'] = implode("\n", $current_chapter['events']);
-			}
-			if (isset($current_chapter['places']) && is_array($current_chapter['places'])) {
-				$current_chapter['places'] = implode("\n", $current_chapter['places']);
-			}
-			if (isset($current_chapter['people']) && is_array($current_chapter['people'])) {
-				$current_chapter['people'] = implode("\n", $current_chapter['people']);
-			}
-
-			$replacements = [
-				'##book_title##' => $bookData['title'] ?? 'no title',
-				'##back_cover_text##' => $bookData['back_cover_text'] ?? 'no back cover text',
-				'##book_blurb##' => $bookData['blurb'] ?? 'no blurb',
-				'##language##' => $bookData['language'] ?? 'English',
-				'##act##' => $current_chapter['row'] ?? 'no act',
-				'##chapter##' => $current_chapter['name'] ?? 'no name',
-				'##description##' => $current_chapter['short_description'] ?? 'no description',
-				'##events##' => $current_chapter['events'] ?? 'no events',
-				'##people##' => $current_chapter['people'] ?? 'no people',
-				'##places##' => $current_chapter['places'] ?? 'no places',
-				'##beat_summary##' => $currentBeatDescription ?? '',
-				'##beat_text##' => $currentBeatText ?? '',
-			];
-
-			$beatPrompt = str_replace(array_keys($replacements), array_values($replacements), $beatPromptTemplate);
-
-			$resultData = MyHelper::llm_no_tool_call($llm, '', '', $beatPrompt, false);
-
-			if (isset($resultData->error)) {
-				return response()->json(['success' => false, 'message' => $resultData->error]);
-			}
-
-			if ($save_results) {
-				$chapterFilePath = "{$bookPath}/{$chapterFilename}";
-
-				if (file_exists($chapterFilePath)) {
-					$chapterData = json_decode(file_get_contents($chapterFilePath), true);
-					$chapterData['beats'][$beatIndex]['beat_summary'] = $resultData;
-
-					if (file_put_contents($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
-						return response()->json(['success' => true, 'message' => 'Wrote beat summary to file.', 'prompt' => $resultData]);
-					} else {
-						return response()->json(['success' => false, 'message' => __('Failed to write to file')]);
+			if ($request->has('beats')) {
+				$beats = $request->input('beats');
+				foreach ($beats as &$beat) {
+					if (isset($beat['beat_text'])) {
+						// Split text into lines and filter out those starting with ">"
+						$lines = explode("\n", $beat['beat_text']);
+						$filtered_lines = array_filter($lines, function($line) {
+							return !Str::startsWith(trim($line), '>');
+						});
+						$beat['beat_text'] = implode("\n", $filtered_lines);
 					}
-				} else {
-					return response()->json(['success' => false, 'message' => __('Chapter file not found')]);
 				}
+				$chapterData['beats'] = $beats;
 			}
 
-			echo json_encode(['success' => true, 'prompt' => $resultData]);
+
+			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
+				return response()->json(['success' => true, 'message' => 'Chapter saved.']);
+			} else {
+				return response()->json(['success' => false, 'message' => __('Failed to save chapter')]);
+			}
 		}
 
 	}

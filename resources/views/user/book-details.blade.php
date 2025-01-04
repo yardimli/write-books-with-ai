@@ -245,6 +245,7 @@
 	<script>
 		var current_page = 'book_details';
 		let bookToDelete = null;
+		let createCoverFileName = '';
 		
 		function startIntro() {
 			let intro = introJs().setOptions({

@@ -92,7 +92,6 @@
 
 		Route::post('/write-book-character-profiles', [BookActionController::class, 'writeBookCharacterProfiles'])->name('write-book-character-profiles');
 		Route::post('/write-book', [BookActionController::class, 'writeBook'])->name('write-book');
-		Route::post('/book/{bookSlug}/chapter', [BookActionController::class, 'saveChapter'])->name('book-save-chapter');
 		Route::post('/book/{bookSlug}/cover', [BookActionController::class, 'saveCover'])->name('book-save-cover');
 		Route::post('/book/{bookSlug}/details', [BookActionController::class, 'saveBookDetails'])->name('book-save-book-details');
 
@@ -104,6 +103,7 @@
 
 		Route::post('/book/write-beat-summary/{bookSlug}/{chapterFilename}', [BookBeatController::class, 'writeBeatSummary'])->name('book-write-beat-summary');
 
+		Route::post('/book/{bookSlug}/chapter', [BookBeatController::class, 'saveChapter'])->name('book-save-chapter');
 
 		Route::get('/book/{bookSlug}/codex', [BookCodexController::class, 'showCodex'])->name('book-codex');
 		Route::post('/book/{bookSlug}/codex', [BookCodexController::class, 'saveCodex'])->name('book-save-codex');

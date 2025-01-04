@@ -413,4 +413,12 @@
 
 		'AI Settings' => 'Yapay Zeka Ayarları',
 
+		'You have unsaved changes. Are you sure you want to leave?' => 'Kaydedilmemiş değişiklikleriniz var. Çıkmak istediğinizden emin misiniz?',
+		'Unsaved changes...' => 'Kaydedilmemiş değişiklikler...',
+		'Edit Beat Description' => 'Vuruş Açıklamasını Düzenle',
+		'Write Description' => 'Açıklama Yaz',
+		'Save Description' => 'Açıklamayı Kaydet',
+		'Missing required fields:' => 'Gerekli alanlar eksik:',
+		'Please ensure all fields are present with their ###### fieldname markers.' => 'Lütfen tüm alanların ###### alan adı işaretçileriyle mevcut olduğundan emin olun.',
+
 	];

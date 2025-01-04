@@ -8,6 +8,8 @@ genre is ##genre##.
 try writing as ##writing_style##.
 write as ##narrative_style##.
 
+----------------------------------------------------
+
 This Chapter:
 ##act##
 ##chapter##
@@ -16,16 +18,20 @@ Events: ##events##
 People: ##people##
 Places: ##places##
 
+----------------------------------------------------
+
 Codex:
 ##codex##
 
-Previous Beat Summaries:
-##previous_beat_summaries##
+----------------------------------------------------
+
+Chapter summary to this point:
+##chapter_summary##
 
 Last Beat Full Text:
 ##last_beat_full_text##
 
-Current Beat:
+Current Beat to write:
 ##current_beat##
 
 Next Beat:

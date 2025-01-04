@@ -8,7 +8,9 @@ genre is ##genre##.
 try writing as ##writing_style##.
 write as ##narrative_style##.
 
-This Chapter:
+----------------------------------------------------
+
+This chapter:
 ##act##
 ##chapter##
 ##description##
@@ -16,17 +18,27 @@ Events: ##events##
 People: ##people##
 Places: ##places##
 
+----------------------------------------------------
+
 Codex:
 ##codex##
 
-Previous Beat Summaries:
-##previous_beat_summaries##
+----------------------------------------------------
 
-Current Beat:
+Chapter summary to this point:
+##chapter_summary##
+
+----------------------------------------------------
+
+Current beat to write:
 ##current_beat##
 
-Next Beat:
+----------------------------------------------------
+
+Next beat:
 ##next_beat##
+
+----------------------------------------------------
 
 The text should be detailed and engaging, bringing the scene to life while advancing the story. It should finish such that the next beat can continue the story, don't include the resolution of the scene in this beat. Only output the text for the current beat without any additional information.
 

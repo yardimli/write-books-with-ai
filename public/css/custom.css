@@ -347,3 +347,15 @@ input::placeholder, textarea::placeholder {
     margin-left: 10px;
     cursor: pointer;
 }
+
+
+.beat-action-buttons {
+    background: var(--modal-background);
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.beat-action-button {
+    white-space: nowrap;
+}

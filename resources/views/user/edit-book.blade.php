@@ -34,6 +34,9 @@
 <body>
 
 <main class="py-1">
+	<div id="saveIndicator" class="position-fixed top-0 end-0 m-1 p-1 bg-warning text-dark rounded d-none" style="z-index: 1050;">
+		<i class="bi bi-clock-history"></i> {{__('default.Unsaved changes...')}}
+	</div>
 	
 	<div class="container mt-2">
 		<div class="mb-1 mt-1 w-100" style="text-align: right;">
@@ -101,7 +104,8 @@
 							<div class="row">
 								<div class="col-12">
 								
-        <textarea rows="10" class="form-control chapterDetailsTextarea"   data-chapter-filename="{{$chapter['chapterFilename']}}" id="chapter_edit_{{$chapter_index}}">###### {{__('default.Order')}}
+        <textarea rows="10" class="form-control chapterDetailsTextarea"
+                  data-chapter-filename="{{$chapter['chapterFilename']}}" id="chapter_edit_{{$chapter_index}}">###### {{__('default.Order')}}
 {{$chapter['order']}}
 ###### {{__('default.Name')}}
 {{$chapter['name']}}
@@ -129,27 +133,21 @@
 		        @php
 			        $index++;
 		        @endphp
-
-###### Beat {{$index+1}} Description
-> {{$beat['description'] ?? ''}}
-
+  
 ###### Beat {{$index+1}} Text
+@if(empty($beat['beat_text']) && !empty($beat['description']))
+@php
+	$beat_description = trim($beat['description']);
+	$beat_description = str_replace("\n", "\n> ", $beat_description);
+	$beat_description = "> " . $beat_description;
+@endphp
+{{$beat_description}}
+@else
 {{$beat['beat_text'] ?? ''}}
-
-###### Beat {{$index+1}} Summary
-> {{$beat['beat_summary'] ?? ''}}
+@endif
 	        @endforeach
         </textarea>
 								</div>
-							</div>
-							<div class="row" style="margin-left: -15px; margin-right: -15px;">
-								<div class="col-12 col-xl-4 col-lg-4 mb-2 mt-1">
-									<button class="btn bt-lg btn-secondary w-100 update-chapter-btn"
-									        data-chapter-filename="{{$chapter['chapterFilename']}}">
-										{{__('default.Update Chapter')}}
-									</button>
-								</div>
-								
 							</div>
 						</div>
 					</div>
@@ -164,7 +162,7 @@
 		<br>
 	
 	</div>
-	
+
 </main>
 
 <!-- Modal for Generating All Beats -->
@@ -394,6 +392,29 @@
 	</div>
 </div>
 
+
+<!-- Beat Description Edit Modal -->
+<div class="modal fade" id="beatDescriptionEditModal" tabindex="-1" aria-labelledby="beatDescriptionEditModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content modal-content-color">
+			<div class="modal-header modal-header-color">
+				<h5 class="modal-title" id="beatDescriptionEditModalLabel">{{__('default.Edit Beat Description')}}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body modal-body-color">
+				<textarea id="editableBeatDescription" class="form-control" rows="5"></textarea>
+			</div>
+			<div class="modal-footer modal-footer-color justify-content-start">
+				<button type="button" class="btn btn-primary" id="writeBeatDescriptionBtn">
+					<i class="bi bi-magic"></i> {{__('default.Write Description')}}
+				</button>
+				<button type="button" class="btn btn-success" id="saveBeatDescriptionBtn">{{__('default.Save Description')}}</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{__('default.Cancel')}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="fullScreenOverlay" class="d-none">
 	<div class="overlay-content">
 		<div class="spinner-border text-light" role="status">
@@ -418,38 +439,11 @@
 
 <script>
 	
-	let reload_window = false;
 	let savedLlm = localStorage.getItem('edit-book-llm') || 'anthropic/claude-3-haiku:beta';
-	
-	function saveChapter(chapterData) {
-		$.ajax({
-			url: `/book/${bookSlug}/chapter`,
-			type: 'POST',
-			data: chapterData,
-			dataType: 'json',
-			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			},
-			success: function (response) {
-				if (response.success) {
-					reload_window = true;
-					
-					$('#save_result').html('<div class="alert alert-success">{{__('default.Chapter saved successfully!')}}</div>');
-					$("#alertModalContent").html('{{__('default.Chapter saved successfully!')}}');
-					$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-				} else {
-					console.log(response);
-					$("#alertModalContent").html('{{__('default.Failed to save chapter: ')}}' + response.message);
-					$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-				}
-			},
-			error: function (xhr, status, error) {
-				console.error(xhr.responseText);
-				$("#alertModalContent").html('{{__('default.An error occurred while saving the chapter.')}}');
-				$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-			}
-		});
-	}
+	let beatDescriptions = {};
+	let chapterChanges = {};
+	let saveTimeout = null;
+	const SAVE_DELAY = 2000; // 2 seconds delay before saving
 	
 	function generateAllBeats(writingStyle = 'Minimalist', narrativeStyle = 'Third Person - The narrator has a godlike perspective') {
 		const modal = $('#generateAllBeatsModal');
@@ -588,7 +582,7 @@
 				'##narrative_style##': $("#narrativeStyle").val() || 'Third Person - The narrator has a godlike perspective',
 				'##book_structure##': bookData.book_structure || 'the_1_act_story.txt',
 				'##previous_chapters##': chaptersToInclude.map(ch =>
-					`name: ${ch.name}\nshort description: ${ch.short_description}\nevents: ${ch.events}\npeople: ${ch.people}\nplaces: ${ch.places}\nfrom previous chapter: ${ch.from_previous_chapter}\nto next chapter: ${ch.to_next_chapter}\n\nbeats:\n${ch.beats ? ch.beats.map(b => b.beat_summary || b.description).join('\n') : ''}`
+					`name: ${ch.name}\nshort description: ${ch.short_description}\nevents: ${ch.events}\npeople: ${ch.people}\nplaces: ${ch.places}\nfrom previous chapter: ${ch.from_previous_chapter}\nto next chapter: ${ch.to_next_chapter}\n\nbeats:\n${ch.beats ? ch.beats.map(b => b.description).join('\n') : ''}`
 				).join('\n\n'),
 				'##current_chapter##': `name: ${foundCurrentChapterData.name}\nshort description: ${foundCurrentChapterData.short_description}\nevents: ${foundCurrentChapterData.events}\npeople: ${foundCurrentChapterData.people}\nplaces: ${foundCurrentChapterData.places}\nfrom previous chapter: ${foundCurrentChapterData.from_previous_chapter}\nto next chapter: ${foundCurrentChapterData.to_next_chapter}`
 			};
@@ -654,7 +648,6 @@
 				dataType: 'json',
 				success: function (response) {
 					if (response.success) {
-						reload_window = true;
 						$("#alertModalContent").html('{{__('default.Chapter rewritten successfully!')}}');
 						$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
 					} else {
@@ -738,61 +731,6 @@
 	}
 	
 	//------------------------------------------------------------
-	function writeBeatSummary(beatText, beatDescription, beatIndex, chapterIndex, chapterFilename, editor, currentLine) {
-		return new Promise((resolve, reject) => {
-			$('#fullScreenOverlay').removeClass('d-none');
-
-			
-			$.ajax({
-				url: `/book/write-beat-summary/{{$book_slug}}/${chapterFilename}`,
-				method: 'POST',
-				data: {
-					llm: savedLlm,
-					beat_index: beatIndex,
-					current_beat_description: beatDescription,
-					current_beat_text: beatText,
-					save_results: false,
-				},
-				headers: {
-					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-				},
-				dataType: 'json',
-				success: function (response) {
-					$('#fullScreenOverlay').addClass('d-none');
-					if (response.success) {
-						
-						let doc = editor.getDoc();
-						
-						// Find the next section
-						let nextSectionLine = currentLine + 1;
-						while (nextSectionLine < doc.lineCount()) {
-							let nextLine = doc.getLine(nextSectionLine);
-							if (nextLine.startsWith('######')) {
-								break;
-							}
-							nextSectionLine++;
-						}
-						
-						// Insert the new content
-						doc.replaceRange(
-							'\n> ' + response.prompt + '\n',
-							{line: currentLine + 1, ch: 0},
-							{line: nextSectionLine - 1, ch: 0}
-						);
-						
-						resolve(response.prompt);
-					} else {
-						reject("{{__('default.Failed to write summary: ')}}" + response.message);
-					}
-				},
-				error: function () {
-					$('#fullScreenOverlay').addClass('d-none');
-					reject("{{__('default.Failed to write beat summary.')}}<br>");
-				}
-			});
-		});
-	}
-	
 	function writeBeat(chapterFilename, writeMode, beatIndex, chapterIndex, textInput, editor, currentLine) {
 		const modal = $('#writeBeatModal');
 		$('#writeResult').val('');
@@ -981,7 +919,7 @@
 	
 	//------------------------------------------------------------
 	
-	function parseChapterDetails(text) {
+	function parseChapterDetails(chapterFilename,text) {
 		const fieldMappings = {
 			'{{__('default.Order')}}': 'order',
 			'{{__('default.Name')}}': 'name',
@@ -1012,33 +950,24 @@
 			const fieldContent = lines.slice(1).join('\n').trim();
 			
 			// Check if this is a beat section
-			const beatMatch = fieldName.match(/^Beat (\d+) (Description|Text|Summary)$/);
+			const beatMatch = fieldName.match(/^Beat (\d+) Text$/);
 			if (beatMatch) {
 				const beatNumber = parseInt(beatMatch[1]) - 1;
-				const beatType = beatMatch[2].toLowerCase();
 				
 				// Initialize beat object if it doesn't exist
 				if (!beats[beatNumber]) {
 					beats[beatNumber] = {
-						description: '',
+						description: beatDescriptions[chapterFilename]?.[beatNumber] || '',
 						beat_text: '',
-						beat_summary: '',
+						description: '',
 						lastUpdated: moment().format()
 					};
 				}
+
+				beats[beatNumber].beat_text = fieldContent;
+				beats[beatNumber].description = getBeatDescription(chapterFilename, beatNumber);
+				beats[beatNumber].lastUpdated = moment().format();
 				
-				// Remove '> ' prefix if it exists
-				let cleanContent = fieldContent.replace(/^> /, '').trim();
-				cleanContent = fieldContent.replace(/^>/, '').trim();
-				
-				// Map the content to the appropriate beat property
-				if (beatType === 'description') {
-					beats[beatNumber].description = cleanContent;
-				} else if (beatType === 'text') {
-					beats[beatNumber].beat_text = cleanContent;
-				} else if (beatType === 'summary') {
-					beats[beatNumber].beat_summary = cleanContent;
-				}
 			} else {
 				parsedData[fieldName] = fieldContent;
 			}
@@ -1071,9 +1000,148 @@
 		};
 	}
 	
-	let createCoverFileName = '';
+	function setBeatDescription(chapterFilename, beatIndex, description) {
+		if (!beatDescriptions[chapterFilename]) {
+			beatDescriptions[chapterFilename] = {};
+		}
+		beatDescriptions[chapterFilename][beatIndex] = description;
+	}
+	
+	function getBeatDescription(chapterFilename, beatIndex) {
+		return beatDescriptions[chapterFilename]?.[beatIndex] || '';
+	}
+	
+	function initializeBeatDescriptions() {
+		for (let act of bookData.acts) {
+			for (let chapter of act.chapters) {
+				if (!beatDescriptions[chapter.chapterFilename]) {
+					beatDescriptions[chapter.chapterFilename] = {};
+				}
+				
+				if (chapter.beats) {
+					chapter.beats.forEach((beat, index) => {
+						beatDescriptions[chapter.chapterFilename][index] = beat.description || '';
+					});
+				}
+			}
+		}
+	}
+	
+	//------------------------------------------------------------
+	
+	function showSaveIndicator() {
+		$('#saveIndicator').removeClass('d-none');
+	}
+	
+	function hideSaveIndicator() {
+		$('#saveIndicator').addClass('d-none');
+	}
+	
+	function markChapterAsChanged(chapterFilename) {
+		chapterChanges[chapterFilename] = true;
+		showSaveIndicator();
+		
+		// Clear existing timeout
+		if (saveTimeout) {
+			clearTimeout(saveTimeout);
+		}
+		
+		// Set new timeout for autosave
+		saveTimeout = setTimeout(() => {
+			saveAllChangedChapters();
+		}, SAVE_DELAY);
+	}
+	
+	function saveAllChangedChapters() {
+		let promises = [];
+		
+		for (let chapterFilename in chapterChanges) {
+			if (chapterChanges[chapterFilename]) {
+				let chapterCard = $(`.chapterDetailsTextarea[data-chapter-filename="${chapterFilename}"]`).closest('.card');
+				let chapterText = chapterCard.find('.chapterDetailsTextarea').val();
+				
+				const parsedChapter = parseChapterDetails(chapterFilename, chapterText);
+				if (!parsedChapter.isValid) {
+					let error_text = '{{__("default.Missing required fields:")}} ' +
+					parsedChapter.missingFields.join(', ') +
+					'<br><br>{{__("default.Please ensure all fields are present with their ###### fieldname markers.")}}'
+					
+					console.error('Invalid chapter data:', parsedChapter.missingFields);
+					console.error(error_text);
+					continue;
+				}
+				
+				let chapterData = {
+					chapter_filename: chapterFilename,
+					...parsedChapter.data
+				};
+				
+				promises.push(
+					
+					$.ajax({
+						url: `/book/${bookSlug}/chapter`,
+						type: 'POST',
+						data: chapterData,
+						dataType: 'json',
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						},
+						success: function (response) {
+							if (response.success) {
+								console.log('{{__('default.Chapter saved successfully!')}}', chapterFilename);
+							} else {
+								console.error('{{__('default.Failed to save chapter:')}}', response.message);
+							}
+						},
+						error: function (xhr, status, error) {
+							console.error('{{__('default.An error occurred while saving the chapter.')}}');
+							console.error(xhr.responseText);
+						}
+					})
+				);
+			}
+		}
+		
+		if (promises.length > 0) {
+			Promise.all(promises)
+				.then(responses => {
+					let allSuccessful = responses.every(response => response.success);
+					if (allSuccessful) {
+						chapterChanges = {};
+						hideSaveIndicator();
+					}
+				})
+				.catch(error => {
+					console.error('{{__('default.Failed to save chapter:')}}', error);
+					$("#alertModalContent").html('{{__('default.Failed to save chapter:')}}');
+					$("#alertModal").modal('show');
+				});
+		}
+	}
+	
+	function onBeatDescriptionChange(chapterFilename, beatIndex, description) {
+		setBeatDescription(chapterFilename, beatIndex, description);
+		markChapterAsChanged(chapterFilename);
+	}
+	
 	
 	$(document).ready(function () {
+		initializeBeatDescriptions();
+		
+		$(window).on('beforeunload', function() {
+			if (Object.keys(chapterChanges).length > 0) {
+				return '{{__("default.You have unsaved changes. Are you sure you want to leave?")}}';
+			}
+		});
+
+		// Add keyboard shortcut for manual save (Ctrl+S/Cmd+S)
+		$(document).on('keydown', function(e) {
+			if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+				e.preventDefault();
+				saveAllChangedChapters();
+			}
+		});
+		
 		
 		@php
 			$chapter_index = 0;
@@ -1091,13 +1159,14 @@
 			
 		});
 		
-		simplemde_{{$chapter_index}}.codemirror.setSize(null,'80vh');
+		simplemde_{{$chapter_index}}.codemirror.setSize(null, '80vh');
 		
 		simplemde_{{$chapter_index}}.codemirror.on('cursorActivity', function () {
 			var cursor = simplemde_{{$chapter_index}}.codemirror.getCursor();
 			var line_number = cursor.line;
 			var current_line = simplemde_{{$chapter_index}}.codemirror.getLine(line_number);
 			
+			$('.beat-action-button-container').remove();
 			$('.beat-action-button').remove();
 			
 			if (current_line.trim() === '###### Name') {
@@ -1114,9 +1183,8 @@
 					})
 					.on('click', function (e) {
 						
-						let chapterIndex = simplemde_{{$chapter_index}}.element.id.replace('chapter_edit_', '');
-						let chapterFilename = $(simplemde_{{$chapter_index}}.element)
-							.closest('textarea').data('chapter-filename');
+						let chapterIndex = {{$chapter_index}};
+						let chapterFilename = '{{$chapter['chapterFilename']}}';
 						
 						rewriteChapter(chapterFilename);
 						
@@ -1128,7 +1196,7 @@
 				$('body').append($button);
 			}
 			
-				// Check if cursor is on ##### Beats line
+			// Check if cursor is on ##### Beats line
 			if (current_line.trim() === '##### Beats') {
 				var cursorCoords = simplemde_{{$chapter_index}}.codemirror.cursorCoords(true);
 				
@@ -1138,7 +1206,7 @@
 				let beatCount = 0;
 				for (let i = 0; i < totalLines; i++) {
 					let lineContent = doc.getLine(i);
-					if (lineContent.match(/^###### Beat \d+ Description/)) {
+					if (lineContent.match(/^###### Beat \d+ Text/)) {
 						beatCount++;
 					}
 				}
@@ -1155,7 +1223,7 @@
 					})
 					.on('click', function (e) {
 						let newBeatNumber = beatCount + 1;
-						let newBeatContent = `\n###### Beat ${newBeatNumber} Description\n\n###### Beat ${newBeatNumber} Text\n\n###### Beat ${newBeatNumber} Summary\n`;
+						let newBeatContent = `\n###### Beat ${newBeatNumber} Text\n\n`;
 						
 						// Get current content and append new beat
 						let currentContent = simplemde_{{$chapter_index}}.codemirror.getValue();
@@ -1169,104 +1237,72 @@
 				$('body').append($button);
 			}
 			
-			let beatMatch = current_line.match(/^###### Beat (\d+) (Description|Text|Summary)/i);
+			let beatMatch = current_line.match(/^###### Beat (\d+) Text/i);
 			if (beatMatch) {
 				let beatNumber = beatMatch[1];
-				let beatLabel = beatMatch[2];
-				let doc = simplemde_{{$chapter_index}}.codemirror.getDoc();
-				let totalLines = doc.lineCount();
-				
-				// Initialize objects to store all beat sections
-				let beatContent = {
-					Description: '',
-					Text: '',
-					Summary: ''
-				};
-				
-				// Function to extract content until next section or beat
-				function extractContent(startLine) {
-					let content = '';
-					let currentLine = startLine + 1;
-					while (currentLine < totalLines) {
-						let lineContent = doc.getLine(currentLine);
-						if (lineContent.startsWith('#')) {
-							break;
-						}
-						content += lineContent + '\n';
-						currentLine++;
-					}
-					return content.trim();
-				}
-				
-				// Search for all sections of this beat
-				let star_line_number = 0;
-				
-				for (let i = star_line_number; i < totalLines; i++) {
-					let lineContent = doc.getLine(i);
-					
-					// Check for each section type
-					let sectionMatch = lineContent.match(new RegExp(`^###### Beat ${beatNumber} (Description|Text|Summary)`, 'i'));
-					
-					if (sectionMatch) {
-						let sectionType = sectionMatch[1];
-						beatContent[sectionType] = extractContent(i);
-					}
-				}
 				
 				// Get cursor coordinates for button placement
 				var cursorCoords = simplemde_{{$chapter_index}}.codemirror.cursorCoords(true);
 				
+				// Create container for buttons
+				var $buttonContainer = $('<div>')
+					.addClass('beat-action-buttons beat-action-button-container')
+					.css({
+						position: 'absolute',
+						left: (cursorCoords.left + 100) + 'px',
+						top: cursorCoords.top + 'px',
+						zIndex: 1000,
+						display: 'flex',
+						gap: '5px'
+					});
+				
+				
 				// Create and position the button
 				var $button = $('<button>')
 					.addClass('btn btn-sm btn-primary beat-action-button')
-					.text('Edit Beat ' + beatNumber + ' ' + beatLabel)
-					.css({
-						position: 'absolute',
-						left: (cursorCoords.left + 50) + 'px',
-						top: cursorCoords.top + 'px',
-						zIndex: 1000
-					})
+					.text('Edit Beat ' + beatNumber + ' Text')
 					.on('click', function (e) {
 						let beatIndex = Number(beatNumber) - 1;
-						let chapterIndex = simplemde_{{$chapter_index}}.element.id.replace('chapter_edit_', '');
-						let chapterFilename = $(simplemde_{{$chapter_index}}.element)
-							.closest('textarea').data('chapter-filename');
+						let chapterIndex = {{$chapter_index}};
+						let chapterFilename = '{{$chapter['chapterFilename']}}';
 						
-						if (beatContent.Description.startsWith('> ')) {
-							beatContent.Description = beatContent.Description.replace('> ', '');
-						}
-						if (beatContent.Summary.startsWith('> ')) {
-							beatContent.Summary = beatContent.Summary.replace('> ', '');
-						}
-
-
 						console.log('Chapter Index:', chapterIndex);
 						console.log('Chapter Filename:', chapterFilename);
 						console.log('Beat Number:', beatNumber);
-						console.log('Beat Label:', beatLabel);
-						console.log('Description:', beatContent.Description);
-						console.log('Text:', beatContent.Text);
-						console.log('Summary:', beatContent.Summary);
 						
-						
-						if (beatLabel==='Text') {
-							writeBeat(chapterFilename, 'write_beat_text', beatIndex, chapterIndex, beatContent.Description + "\n" + beatContent.Text, simplemde_{{$chapter_index}}.codemirror,line_number);
-						}
-						
-						if (beatLabel==='Description') {
-							writeBeat(chapterFilename, 'write_beat_description', beatIndex, chapterIndex, beatContent.Description, simplemde_{{$chapter_index}}.codemirror,line_number);
-						}
-						
-						if (beatLabel==='Summary') {
-							writeBeatSummary(beatContent.Text, beatContent.Description, beatIndex, chapterIndex, chapterFilename, simplemde_{{$chapter_index}}.codemirror,line_number);
-						}
+						writeBeat(chapterFilename, 'write_beat_text', beatIndex, chapterIndex, getBeatDescription(chapterFilename, beatIndex) , simplemde_{{$chapter_index}}.codemirror, line_number);
 						
 						e.preventDefault();
 						e.stopPropagation();
 					});
 				
-				// Add button to the document
-				$('body').append($button);
+				// Description button
+				var $descriptionButton = $('<button>')
+					.addClass('btn btn-sm btn-info beat-action-button')
+					.html('<i class="bi bi-file-text"></i> Description')
+					.on('click', function (e) {
+						e.preventDefault();
+						e.stopPropagation();
+						
+						let chapterIndex = {{$chapter_index}};
+						let chapterFilename = '{{$chapter['chapterFilename']}}';
+						let beatIndex = Number(beatNumber) - 1;
+						
+						// Store the current editor and line number
+						currentEditor = simplemde_{{$chapter_index}}.codemirror;
+						currentLineNumber = line_number;
+						
+						$('#editableBeatDescription').val(getBeatDescription(chapterFilename, beatIndex));
+						$('#beatDescriptionEditModal')
+							.data('chapter-filename', chapterFilename)
+							.data('beat-index', beatIndex)
+							.data('chapter-index', chapterIndex)
+							.modal('show');
+					});
+				
+				$buttonContainer.append($button, $descriptionButton);
+				$('body').append($buttonContainer);
+				
 			}
 		});
 		
@@ -1274,18 +1310,66 @@
 		simplemde_{{$chapter_index}}.codemirror.on('blur', function () {
 			// $('.beat-action-button').remove();
 		});
+		
+		simplemde_{{$chapter_index}}.codemirror.on('change', function() {
+			markChapterAsChanged('{{$chapter["chapterFilename"]}}');
+		});
+		
+		@endforeach
+		@endforeach
+		
+		
+		$("#writeBeatDescriptionBtn").on('click', function() {
+			let chapterFilename = $('#beatDescriptionEditModal').data('chapter-filename');
+			let beatIndex = $('#beatDescriptionEditModal').data('beat-index');
+			let chapterIndex = $('#beatDescriptionEditModal').data('chapter-index');
+			
+			$('#writeBeatDescriptionBtn').prop('disabled', true);
+			
+			// Call writeBeat function
+			writeBeat(
+				chapterFilename,
+				'write_beat_description',
+				beatIndex,
+				chapterIndex,
+				'',
+				currentEditor,
+				currentLineNumber
+			);
+			
+			// Modify the acceptWriteBtn click handler to update the description modal
+			$('#acceptWriteBtn').off('click').on('click', function() {
+				const newDescription = $('#writeResult').val();
+				$('#editableBeatDescription').val(newDescription);
+				$('#writeBeatModal').modal('hide');
+				
+				$('#writeBeatDescriptionBtn').prop('disabled', false);
+			});
+		});
 
+// Reset state when description modal is hidden
+		$('#beatDescriptionEditModal').on('hidden.bs.modal', function() {
+			currentEditor = null;
+			currentLineNumber = null;
+			$('#writeBeatDescriptionBtn').prop('disabled', false);
+		});
 		
-		@endforeach
-		@endforeach
+		$("#saveBeatDescriptionBtn").on('click', function () {
+			let chapterFilename = $('#beatDescriptionEditModal').data('chapter-filename');
+			let beatIndex = $('#beatDescriptionEditModal').data('beat-index');
+			let description = $('#editableBeatDescription').val();
+			
+			console.log('Chapter Filename:', chapterFilename, 'Beat Index:', beatIndex, 'Description:', description);
+			
+			onBeatDescriptionChange(chapterFilename, beatIndex, description);
+			$('#beatDescriptionEditModal').modal('hide');
+		});
 		
-		
-		
-		$('#aiSettingsBtn').on('click', function() {
+		$('#aiSettingsBtn').on('click', function () {
 			$('#aiSettingsModal').modal('show');
 		});
 		
-		$('#saveAiSettingsBtn').on('click', function() {
+		$('#saveAiSettingsBtn').on('click', function () {
 			// Save settings to localStorage
 			localStorage.setItem('edit-book-llm', $('#llmSelect').val());
 			localStorage.setItem('writing-style', $('#writingStyle').val());
@@ -1374,33 +1458,6 @@
 			location.reload();
 		});
 		
-		$('.update-chapter-btn').on('click', function () {
-			var chapterFilename = $(this).data('chapter-filename');
-			var chapterCard = $(this).closest('.card');
-			var chapterText = chapterCard.find('.chapterDetailsTextarea').val();
-			
-			// Parse and validate the chapter details
-			const parsedChapter = parseChapterDetails(chapterText);
-			
-			if (!parsedChapter.isValid) {
-				$("#alertModalContent").html(
-					'{{__("default.Missing required fields:")}} ' +
-					parsedChapter.missingFields.join(', ') +
-					'<br><br>{{__("default.Please ensure all fields are present with their ###### fieldname markers.")}}'
-				);
-				$("#alertModal").modal({backdrop: 'static', keyboard: true}).modal('show');
-				return;
-			}
-			
-			
-			var chapterData = {
-				chapter_filename: chapterFilename,
-				...parsedChapter.data
-			};
-			console.log(chapterData);
-			saveChapter(chapterData);
-		});
-		
 		$('#generateAllBeatsBtn').on('click', function (e) {
 			e.preventDefault();
 			generateAllBeats($("#writingStyle").val(), $("#narrativeStyle").val());
@@ -1408,12 +1465,6 @@
 		
 		$('#rewriteChapterModal').on('shown.bs.modal', function () {
 			$('#rewriteUserPrompt').focus();
-		});
-		
-		$(".alert-modal-close-button").on('click', function () {
-			if (reload_window) {
-				location.reload();
-			}
 		});
 		
 		// Save book details
@@ -1443,7 +1494,6 @@
 						$('#backCoverText').html(bookData.back_cover_text.replace(/\n/g, '<br>'));
 						$('#bookCharacters').html('<em>{{__("default.Character Profiles:")}}</em><br>' + bookData.character_profiles.replace(/\n/g, '<br>'));
 						
-						reload_window = true;
 						$('#editBookDetailsModal').modal('hide');
 						$("#alertModalContent").html('{{__("default.Book details updated successfully!")}}');
 						$("#alertModal").modal('show');

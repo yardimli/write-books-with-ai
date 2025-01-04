@@ -513,47 +513,6 @@
 
 		}
 
-		public function saveChapter(Request $request, $bookSlug)
-		{
-			$verified = MyHelper::verifyBookOwnership($bookSlug);
-			if (!$verified['success']) {
-				return response()->json($verified);
-			}
-
-			$bookPath = Storage::disk('public')->path("books/{$bookSlug}");
-
-			$chapterFilename = $request->input('chapter_filename');
-
-			$chapterFilePath = "{$bookPath}/{$chapterFilename}";
-
-			if (!File::exists($chapterFilePath)) {
-				return response()->json(['success' => false, 'message' => __('Chapter file not found')], 404);
-			}
-
-			$chapterData = json_decode(File::get($chapterFilePath), true);
-//			$chapterData['row'] = $request->input('row', 0);
-			$chapterData['order'] = $request->input('order', 1);
-			$chapterData['name'] = $request->input('name');
-			$chapterData['short_description'] = $request->input('short_description');
-			$chapterData['events'] = $request->input('events');
-			$chapterData['people'] = $request->input('people');
-			$chapterData['places'] = $request->input('places');
-			$chapterData['from_previous_chapter'] = $request->input('from_previous_chapter');
-			$chapterData['to_next_chapter'] = $request->input('to_next_chapter');
-			$chapterData['lastUpdated'] = now()->toDateTimeString();
-
-			if ($request->has('beats')) {
-				$chapterData['beats'] = $request->input('beats');
-			}
-
-
-			if (File::put($chapterFilePath, json_encode($chapterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
-				return response()->json(['success' => true, 'message' => 'Chapter saved.']);
-			} else {
-				return response()->json(['success' => false, 'message' => __('Failed to save chapter')]);
-			}
-		}
-
 		public function saveCover(Request $request, $bookSlug)
 		{
 			$verified = MyHelper::verifyBookOwnership($bookSlug);

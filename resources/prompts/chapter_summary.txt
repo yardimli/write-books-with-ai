@@ -1,0 +1,11 @@
+You are helping to write a book titled "##book_title##"
+In chapter "##chapter##" (##description##),
+Book Language is ##language##
+
+you need to create a concise summary of all the beats.
+
+Here are the beats to summarize:
+
+##beats##
+
+Please provide a clear and concise summary of all these beats, highlighting the key events and developments in the story so far. Only write the summary without any additional instructions or information.

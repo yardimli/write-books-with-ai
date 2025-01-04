@@ -403,4 +403,13 @@
 		'Beats Per Chapter' => 'Beats Per Chapter',
 
 		'AI Settings' => 'AI Settings',
+
+		'You have unsaved changes. Are you sure you want to leave?' => 'You have unsaved changes. Are you sure you want to leave?',
+		'Unsaved changes...' => 'Unsaved changes...',
+		'Edit Beat Description' => 'Edit Beat Description',
+		'Write Description' => 'Write Description',
+		'Save Description' => 'Save Description',
+		'Missing required fields:' => 'Missing required fields:',
+		'Please ensure all fields are present with their ###### fieldname markers.' => 'Please ensure all fields are present with their ###### fieldname markers.',
+
 	];
