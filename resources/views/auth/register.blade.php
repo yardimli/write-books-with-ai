@@ -85,11 +85,11 @@
 									                                    style="max-height: 80px;"></a>
 								</div>
 								<div class="register-page-form" style="margin-top: 5px; padding-top: 5px;">
-									
-									<form class="row sign-up-form" method="POST" action="{{ route('register') }}" name="signupform"
-									      role="form">
+								
+{{--									<form class="row sign-up-form" method="POST" action="{{ route('register') }}" name="signupform"--}}
+{{--									      role="form">--}}
 										{{--											<form name="signupform" class="row sign-up-form">--}}
-										@csrf
+{{--										@csrf--}}
 										
 										<!-- Google Button -->
 										<div class="col-md-12">
@@ -105,83 +105,83 @@
 										</div>
 										
 										<!-- Form Input -->
-										<div class="col-md-12 {{ $errors->has('username') ? ' has-danger' : '' }}">
-											<p class="p-sm input-header">{{__('default.Author Name')}}</p>
-											<input class="form-control name" type="text" name="username"
-											       placeholder="{{__('default.Enter Username...') }}" value="{{ old('username') }}"
-											       autocomplete="username" autofocus required>
-											@if ($errors->has('username'))
-												<div id="name-error" class="error text-danger pl-3" for="username"
-												     style="display: block; font-size: 0.85rem">
-													<strong class="errors-field-username">{{ $errors->first('username') }}</strong>
-												</div>
-											@endif
-										</div>
+{{--										<div class="col-md-12 {{ $errors->has('username') ? ' has-danger' : '' }}">--}}
+{{--											<p class="p-sm input-header">{{__('default.Author Name')}}</p>--}}
+{{--											<input class="form-control name" type="text" name="username"--}}
+{{--											       placeholder="{{__('default.Enter Username...') }}" value="{{ old('username') }}"--}}
+{{--											       autocomplete="username" autofocus required>--}}
+{{--											@if ($errors->has('username'))--}}
+{{--												<div id="name-error" class="error text-danger pl-3" for="username"--}}
+{{--												     style="display: block; font-size: 0.85rem">--}}
+{{--													<strong class="errors-field-username">{{ $errors->first('username') }}</strong>--}}
+{{--												</div>--}}
+{{--											@endif--}}
+{{--										</div>--}}
 										
 										<!-- Form Input -->
-										<div class="col-md-12 {{ $errors->has('email') ? ' has-danger' : '' }}">
-											<p class="p-sm input-header">{{__('default.Email')}}<span
-													style="font-size: 12px; margin-left: 10px; color: gray">{{__('default.We\'ll never share your email with anyone else.')}}</span>
-											</p>
-											
-											<input class="form-control email" type="email" name="email" placeholder="example@example.com"
-											       value="{{ old('email') }}"
-											       required autocomplete="email">
-											
-											
-											@if ($errors->has('email'))
-												<div id="email-error" class="error text-danger pl-3" for="name"
-												     style="display: block; font-size: 0.85rem">
-													<strong class="errors-field-email">{{ $errors->first('email') }}</strong>
-												</div>
-											@endif
-										</div>
+{{--										<div class="col-md-12 {{ $errors->has('email') ? ' has-danger' : '' }}">--}}
+{{--											<p class="p-sm input-header">{{__('default.Email')}}<span--}}
+{{--													style="font-size: 12px; margin-left: 10px; color: gray">{{__('default.We\'ll never share your email with anyone else.')}}</span>--}}
+{{--											</p>--}}
+{{--											--}}
+{{--											<input class="form-control email" type="email" name="email" placeholder="example@example.com"--}}
+{{--											       value="{{ old('email') }}"--}}
+{{--											       required autocomplete="email">--}}
+{{--											--}}
+{{--											--}}
+{{--											@if ($errors->has('email'))--}}
+{{--												<div id="email-error" class="error text-danger pl-3" for="name"--}}
+{{--												     style="display: block; font-size: 0.85rem">--}}
+{{--													<strong class="errors-field-email">{{ $errors->first('email') }}</strong>--}}
+{{--												</div>--}}
+{{--											@endif--}}
+{{--										</div>--}}
 										
 										<!-- Form Input -->
-										<div class="col-md-12">
-											<p class="p-sm input-header">{{__('default.Password')}}</p>
-											<div class="wrap-input">
-												<span class="btn-show-pass ico-20"><span class="flaticon-visibility eye-pass"></span></span>
-												<input class="form-control password" type="password" name="password"
-												       placeholder="{{__('default.at least 8 characters')}}"
-												       autocomplete="new-password" required>
-											</div>
-										</div>
-										
-										<div class="col-md-12">
-											<input class="form-control" type="password" placeholder="{{__('default.Confirm Password')}}"
-											       autocomplete="new-password"
-											       name="password_confirmation" id="password_confirmation" required>
-										</div>
-										
-										@if ($errors->has('password'))
-											<div id="password-error" class="error text-danger pl-3" for="password"
-											     style="display: block; font-size: 0.85rem">
-												<strong class="errors-field-pass">{{ $errors->first('password') }}</strong>
-											</div>
-										@endif
+{{--										<div class="col-md-12">--}}
+{{--											<p class="p-sm input-header">{{__('default.Password')}}</p>--}}
+{{--											<div class="wrap-input">--}}
+{{--												<span class="btn-show-pass ico-20"><span class="flaticon-visibility eye-pass"></span></span>--}}
+{{--												<input class="form-control password" type="password" name="password"--}}
+{{--												       placeholder="{{__('default.at least 8 characters')}}"--}}
+{{--												       autocomplete="new-password" required>--}}
+{{--											</div>--}}
+{{--										</div>--}}
+
+{{--										<div class="col-md-12">--}}
+{{--											<input class="form-control" type="password" placeholder="{{__('default.Confirm Password')}}"--}}
+{{--											       autocomplete="new-password"--}}
+{{--											       name="password_confirmation" id="password_confirmation" required>--}}
+{{--										</div>--}}
+
+{{--										@if ($errors->has('password'))--}}
+{{--											<div id="password-error" class="error text-danger pl-3" for="password"--}}
+{{--											     style="display: block; font-size: 0.85rem">--}}
+{{--												<strong class="errors-field-pass">{{ $errors->first('password') }}</strong>--}}
+{{--											</div>--}}
+{{--										@endif--}}
 										
 										<!-- Checkbox -->
-										<div class="col-md-12">
-											<div class="form-data">
-												<input class="form-check-input" type="checkbox" name="policy" id="policy"
-												       style="float: left; margin-right: 5px;"
-												       value="1" {{ old('policy', 0) ? 'checked' : '' }}>
-												<span>{!! __('default.I Agree with', [ 'terms_url' => route('terms-page'), 'privacy_url' => route('privacy-page') ]) !!}</span>
-											</div>
-										</div>
-										@if ($errors->has('policy'))
-											<div id="policy-error" class="error text-danger pl-3" for="policy"
-											     style="display: block; font-size: 0.85rem">
-												<strong class="errors-field-pass">{{ $errors->first('policy') }}</strong>
-											</div>
-										@endif
+{{--										<div class="col-md-12">--}}
+{{--											<div class="form-data">--}}
+{{--												<input class="form-check-input" type="checkbox" name="policy" id="policy"--}}
+{{--												       style="float: left; margin-right: 5px;"--}}
+{{--												       value="1" {{ old('policy', 0) ? 'checked' : '' }}>--}}
+{{--												<span>{!! __('default.I Agree with', [ 'terms_url' => route('terms-page'), 'privacy_url' => route('privacy-page') ]) !!}</span>--}}
+{{--											</div>--}}
+{{--										</div>--}}
+{{--										@if ($errors->has('policy'))--}}
+{{--											<div id="policy-error" class="error text-danger pl-3" for="policy"--}}
+{{--											     style="display: block; font-size: 0.85rem">--}}
+{{--												<strong class="errors-field-pass">{{ $errors->first('policy') }}</strong>--}}
+{{--											</div>--}}
+{{--										@endif--}}
 										
 										<!-- Form Submit Button -->
-										<div class="col-md-12">
-											<button type="submit"
-											        class="btn btn--theme hover--theme submit">{{__('default.Create Account')}}</button>
-										</div>
+{{--										<div class="col-md-12">--}}
+{{--											<button type="submit"--}}
+{{--											        class="btn btn--theme hover--theme submit">{{__('default.Create Account')}}</button>--}}
+{{--										</div>--}}
 										
 										<!-- Log In Link -->
 										<div class="col-md-12">
@@ -190,7 +190,7 @@
 											</p>
 										</div>
 									
-									</form>
+{{--									</form>--}}
 								</div>
 							</div>  <!-- END SIGN UP FORM -->
 							
