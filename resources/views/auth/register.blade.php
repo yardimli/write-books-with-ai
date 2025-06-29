@@ -104,7 +104,7 @@
 											<div class="separator-line">{{__('default.Or Use Email')}}</div>
 										</div>
 									<div class="col-md-12 text-center">
-											<h3 class="h3-md">Sign Up with Email has been disabled temporarily due to high bot activity.</h3>
+											<h3 class="h4-md">Sign Up with Email has been disabled temporarily due to high bot activity. Currently we only support oAuth with Google for new members.</h3>
 										<!-- Form Input -->
 {{--										<div class="col-md-12 {{ $errors->has('username') ? ' has-danger' : '' }}">--}}
 {{--											<p class="p-sm input-header">{{__('default.Author Name')}}</p>--}}
