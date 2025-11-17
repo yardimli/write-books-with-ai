@@ -13,6 +13,7 @@
     "require": {
         "php": "^8.1",
         "adhocore/json-fixer": "^1.0",
+        "andreaselia/analytics": "^2.4",
         "aws/aws-sdk-php": "^3.304",
         "bepsvpt/blurhash": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
